@@ -1,0 +1,22 @@
+# Lyon Authentication:
+
+lyon_username : 'Please fill me in !'
+lyon_password : 'Please fill me in !'
+
+lyon_rest_api : 'https://download.data.grandlyon.com/wfs/rdata?SERVICE=WFS&VERSION=2.0.0&outputformat=GEOJSON&maxfeatures=40&request=GetFeature&typename=pvo_patrimoine_voirie.pvotrafic&SRSNAME=urn:ogc:def:crs:EPSG::4171'
+
+# Netatmo Authentication:
+
+netatmo_client_id: 'Please fill me in !'
+netatmo_client_secret: 'Please fill me in !'
+netatmo_username: 'Please fill me in !'
+netatmo_password: 'Please fill me in !'
+
+netatmo_rest_api:
+  - 'https://api.netatmo.net/api/getpublicdata?access_token='
+  - '&lat_ne=45.755067981731095&lon_ne=4.8724365234375&lat_sw=45.72535642341016&lon_sw=4.7955322265625&filter=True'
+
+# MongoDB parameters:
+
+mongo_db:  'myDB'
+mongo_col: 'biotope'

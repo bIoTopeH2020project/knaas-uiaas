@@ -1,0 +1,19 @@
+version: '2'
+services:
+    mongodb:
+      ports:
+        - "27017:27017"
+      image: mongo
+      volumes:
+        - './data/db:/data/db'
+
+    node-red:
+      build: node-red/
+      ports:
+        - "1880:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+
+
