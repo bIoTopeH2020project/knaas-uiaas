@@ -16,4 +16,13 @@ services:
       links:
         - mongodb
 
-
+      # blazegraph:
+      #   image: docker.io/lyrasis/blazegraph:2.1.4
+      #   ports:
+      #     - "8081:8080"
+      #
+      # oorcs:
+      #   build: oorcs/
+      #   ports:
+      #     - "8080:8080"
+      #     - "5005:5005"
