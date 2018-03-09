@@ -1,11 +1,54 @@
 version: '2'
 services:
+#    oori:
+#      image: biotope/oori
+#      environment:
+#        - SERVER_PORT=9090
+#        - CB_PORT=9090
+#        - ENDPOINT_URL=http://fuseki:3030/odfData
+#        - CB_HOSTNAME=biotope.iais.fraunhofer.de
+#      ports:
+#        - "9090:9090"
+#        - "5005:5005"   # java debugging
+
+#    fuseki:
+#      build: fuseki/
+#      ports:
+#        - "3030:3030"
+
+    o-mi-node:
+      build: o-mi-node/
+      ports:
+       - "8080:8080"
+
+#    dashboard-context-manager:
+#      image: biotope/dashboard-context-manager
+#      environment:
+#        - SERVER_PORT=4040
+#      ports:
+#        - "4040:4040"
+
+#    mongodata:
+#      image: mongo
+#      volumes:
+#        - /data/db
+#      command: --break-mongo
+
     mongodb:
+#      build: mongodb/
       ports:
         - "27017:27017"
       image: mongo
       volumes:
         - './data/db:/data/db'
+#      volumes_from: 
+#        - mongodata
+#      command: -smallfiles --rest --auth
+
+#    data-science:
+#      image: jupyter/datascience-notebook
+#      ports:
+#        - "8888:8888"
 
     node-red:
       build: node-red/
@@ -15,14 +58,10 @@ services:
         - "./modules:/usr/src/node-red/modules"
       links:
         - mongodb
+        - o-mi-node
+#        - data-science
 
-      # blazegraph:
-      #   image: docker.io/lyrasis/blazegraph:2.1.4
-      #   ports:
-      #     - "8081:8080"
-      #
-      # oorcs:
-      #   build: oorcs/
-      #   ports:
-      #     - "8080:8080"
-      #     - "5005:5005"
+
+#    freeboard:
+
+

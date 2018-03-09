@@ -132,6 +132,25 @@ def clean_netatmo_data(netatmo_api, furtherInfo=True, overwriteDate=None):
     
     return res
 
+def clean_osm_data(osm_data):
+
+    res = []
+    for data in osm_data:
+        dic = {}
+        dic['id']    = data['osmid']['value']        #msg.payload.id   = msgs[x].osmid.value;
+        dic['name']  = data['marketName']['value']   #msg.payload.name = msgs[x].marketName.value;
+        dic['layer'] = data['layer']['value']        #msg.payload.layer = msgs[x].layer.value;
+        loc_tmp      = data['marketLoc']['value']    #loc_tmp = msgs[x].marketLoc.value;
+        loc_tmp      = loc_tmp[6:-2]                 #loc_tmp = loc_tmp.slice(6,-2);
+        location = loc_tmp.split()                   #location = loc_tmp.split(" ");
+	dic['loc']   = { "type" : "Point",
+                         "coordinates" : [ float(location[0]), float(location[1]) ] }
+        #msg.payload.lon = location[0]; msg.payload.lat = location[1];
+        dic['icon']  = 'arrow'                       #msg.payload.icon = "arrow";
+        res.append(dic)
+    
+    return res
+
 
 def clean_netatmo_data2(netatmo_data, furtherInfo=True, overwriteDate=None):
     
@@ -209,6 +228,11 @@ def _connect_mongo(host, port, username, password, db):
 
     return conn[db]
 
+def delete_collection_data(db, collection, host='localhost', port=27017, username=None, password=None):
+    db = _connect_mongo(host=host, port=port, username=username, password=password, db=db)
+    result = db[collection].delete_many({})
+    return result
+
 def insert_mongo(db, collection, data, host='mongodb', port=27017, username=None, password=None):
     """ Insert a bunch of data into Mongo """
     
@@ -272,14 +296,53 @@ def find_road(db, collection, street_name, date=None, host='mongodb', port=27017
     else:
         return None
 
+def find_near_pois(db, collection, geo, host='localhost', port=27017, username=None, password=None, limit_num = None):
+    # Connect to MongoDB
+    db_ = _connect_mongo(host=host, port=port, username=username, password=password, db=db)
+
+    closest_environ_conds = find_near_sensors(db=db, collection=collection, geo=geo, host=host, limit_num=1)[0]
+    print(closest_environ_conds)
+
+    poi_query = { "$and": [ { "layer": {"$ne": "netatmo"} }, 
+                            #{"loc": {"$near": closest_environ_conds["loc"]}
+                            {"loc": {"$nearSphere": { "$geometry" : { "type" : "Point" ,
+                                                   "coordinates" : closest_environ_conds["loc"]["coordinates"] }
+                            }
+                                    }
+                            } ] }
+
+    if limit_num:
+        assert type(limit_num) is int, "@find_near_sensors: id is not an integer: %r" % id
+        poi_res = db_[collection].find(poi_query).limit(limit_num)
+    else:
+        poi_res = db_[collection].find(poi_query)
+    poi_res = list(poi_res)
+    
+    pois = []
+    for poi in poi_res:
+        #print(poi["loc"])
+        closest_environ_conds_tmp = find_near_sensors(db=db, collection=collection, geo=poi["loc"]["coordinates"], host=host, limit_num=1)[0]
+        #print(closest_environ_conds_tmp)
+        if (closest_environ_conds_tmp["temp"] < closest_environ_conds["temp"]) and (closest_environ_conds_tmp["pres"] < closest_environ_conds["pres"]):
+            poi.pop('_id', None)
+	    poi["temperature"] = closest_environ_conds_tmp["temp"]
+	    poi["pressure"]    = closest_environ_conds_tmp["pres"]
+            pois.append(poi)
+        #else:
+        #    pois.append(poi)
+
+    return pois
+
 
 def find_near_sensors(db, collection, geo, date=None, host='mongodb', port=27017, username=None, password=None, limit_num = None):
     
     # Connect to MongoDB
     db = _connect_mongo(host=host, port=port, username=username, password=password, db=db)
-
+    print(geo)
     if date:
         query = { "$and": [ { "layer": 'netatmo' }, 
+			    {"temp": { "$exists": True }},
+                            {"pres": { "$exists": True }},
                             {"last_update_fme": {"$eq": date}}, \
                             #{"loc": {"$near": [geo[0], geo[1]]}} ] }
                             {"loc": {"$nearSphere": { "$geometry" : { "type" : "Point" ,
@@ -292,6 +355,8 @@ def find_near_sensors(db, collection, geo, date=None, host='mongodb', port=27017
             
     else:
         query = { "$and": [ { "layer": 'netatmo' }, 
+                            {"temp": { "$exists": True }},
+                            {"pres": { "$exists": True }},
                             {"loc": {"$nearSphere": { "$geometry" : { "type" : "Point" ,
                                                	"coordinates" : [geo[0], geo[1]] }
           					}
