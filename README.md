@@ -19,6 +19,7 @@ This will locally bring up a preconfigured KnaaS framework exposed through a bro
 
 * ```http://localhost:1880/```, which is the local Node-RED installation, and
 * ```http://localhost:27017/```, which is the local MongoDB server for storing data and/or knowledge created by the KnaaS framework.
+* ```http://localhost:8080/```, which is the local O-MI Node that provides KnaaS worflow
 
 ## Application to Lyon’s Heat Wave Mitigation Pilot Use Case
 
