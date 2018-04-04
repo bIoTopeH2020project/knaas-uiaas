@@ -26,7 +26,7 @@ RUN npm install node-red-contrib-python3-function
 # O-MI/O-DF Node
 RUN npm install xmldom
 RUN npm install skubler/Node-Red-ODF
-Run npm install jrobert-github/Node-Red-OMI-V9
+Run npm install RohanAsmat/Node-Red-OMI-V9
 
 # Sparql Node
 RUN npm install prokolyvakis/node-red-contrib-sparql
@@ -35,7 +35,7 @@ RUN npm install prokolyvakis/node-red-contrib-sparql
 RUN npm install node-red-dashboard
 
 # web-worldmap
-RUN npm install node-red-contrib-web-worldmap 
+RUN npm install node-red-contrib-web-worldmap
 
 # open weather map
 RUN npm install node-red-node-openweathermap
@@ -83,6 +83,3 @@ RUN pip install statsmodels
 
 USER node-red
 CMD ["npm", "start", "--", "--userDir", "/data"]
-
-
-
