@@ -80,6 +80,12 @@ RUN pip install requests
 USER root
 RUN pip install statsmodels
 
+#intall nano for text editing in node-red
+USER root
+RUN apt-get install nano 
+
+#node red admin
+RUN npm install -g node-red-admin
 
 USER node-red
 CMD ["npm", "start", "--", "--userDir", "/data"]
