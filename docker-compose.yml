@@ -15,7 +15,14 @@ services:
 #      build: fuseki/
 #      ports:
 #        - "3030:3030"
-
+    proxy:
+      container_name: proxy
+      image: proxy
+      build:
+        context: ./proxy
+      ports:
+        - "80:80"
+        
     o-mi-node:
       build: o-mi-node/
       ports:
@@ -41,7 +48,7 @@ services:
       image: mongo
       volumes:
         - './data/db:/data/db'
-#      volumes_from: 
+#      volumes_from:
 #        - mongodata
 #      command: -smallfiles --rest --auth
 
@@ -51,6 +58,7 @@ services:
 #        - "8888:8888"
 
     node-red:
+      container_name: nodered
       build: node-red/
       ports:
         - "1880:1880"
@@ -63,5 +71,3 @@ services:
 
 
 #    freeboard:
-
-
