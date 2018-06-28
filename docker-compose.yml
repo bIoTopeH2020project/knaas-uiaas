@@ -22,7 +22,7 @@ services:
         context: ./proxy
       ports:
         - "80:80"
-        
+  
     o-mi-node:
       build: o-mi-node/
       ports:
