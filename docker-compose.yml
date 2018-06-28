@@ -26,6 +26,7 @@ services:
         - nodered
 
     o-mi-node:
+      container_name: omi-node
       build: o-mi-node/
       ports:
        - "8080:8080"
