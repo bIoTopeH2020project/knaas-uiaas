@@ -22,8 +22,11 @@ services:
         context: ./proxy
       ports:
         - "80:80"
-  
+#      links:
+#        - nodered
+
     o-mi-node:
+      container_name: omi-node
       build: o-mi-node/
       ports:
        - "8080:8080"
@@ -42,6 +45,7 @@ services:
 #      command: --break-mongo
 
     mongodb:
+      container_name: mongodb
 #      build: mongodb/
       ports:
         - "27017:27017"
