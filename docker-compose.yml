@@ -15,15 +15,6 @@ services:
 #      build: fuseki/
 #      ports:
 #        - "3030:3030"
-    proxy:
-      container_name: proxy
-      image: proxy
-      build:
-        context: ./proxy
-      ports:
-        - "80:80"
-#      links:
-#        - nodered
 
     o-mi-node:
       container_name: omi-node
@@ -74,4 +65,16 @@ services:
 #        - data-science
 
 
+
 #    freeboard:
+
+    proxy:
+      container_name: proxy
+      image: proxy
+      build:
+        context: ./proxy
+      ports:
+        - "80:80"
+#      links:
+#        - nodered
+
