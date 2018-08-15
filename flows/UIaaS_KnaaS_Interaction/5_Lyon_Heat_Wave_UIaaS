@@ -1,18 +1,18 @@
 [
     {
-        "id": "6543b05.f4bba5",
+        "id": "86f1c4a.b59b638",
         "type": "tab",
         "label": "5_Lyon_Heat_Wave_UIaaS"
     },
     {
-        "id": "83f2acfd.24c61",
+        "id": "ee79e5fc.2acc38",
         "type": "ui_template",
-        "z": "6543b05.f4bba5",
-        "group": "858f43af.12273",
+        "z": "86f1c4a.b59b638",
+        "group": "e00b55f3.ebcc88",
         "name": "WorldMap",
         "order": 2,
-        "width": "13",
-        "height": "6",
+        "width": "56",
+        "height": "34",
         "format": "<iframe src=\"http://biotope.iais.fraunhofer.de/node-red/worldmap/\" height=\"658\" width=\"1482\">\n <p>Your browser does not support iframes.</p>\n</iframe>",
         "storeOutMessages": true,
         "fwdInMessages": true,
@@ -24,9 +24,9 @@
         ]
     },
     {
-        "id": "6a3e4346.ca2e2c",
+        "id": "8cac5431.44d998",
         "type": "omiNodeV9",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "Read O-MI Node Lyon Heat Wave Mitigation",
         "path_InfoItem": "https://biotope-omi.alpha.grandlyon.com/Objects/Organization:Metropole-de-Lyon:v0-5-0",
         "token": "",
@@ -46,14 +46,14 @@
         "y": 445.8833312988281,
         "wires": [
             [
-                "6ddd92f1.536bcc"
+                "798d1c7b.f37ad4"
             ]
         ]
     },
     {
-        "id": "5254f39a.bb7c4c",
+        "id": "cac149ea.f49908",
         "type": "debug",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "OutputOMINodeLyon",
         "active": true,
         "console": "false",
@@ -63,9 +63,9 @@
         "wires": []
     },
     {
-        "id": "6ddd92f1.536bcc",
+        "id": "798d1c7b.f37ad4",
         "type": "xml",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "Lyon O-DF Structure to JSON",
         "attr": "",
         "chr": "",
@@ -73,15 +73,15 @@
         "y": 523.8833312988281,
         "wires": [
             [
-                "90efc636.d9d0c8",
-                "f0f2295e.6d6558"
+                "4ea9f605.b92238",
+                "ea2c0568.8ac018"
             ]
         ]
     },
     {
-        "id": "ae6b7d26.f0bff",
+        "id": "f1736f8b.23e6e",
         "type": "inject",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "Execute UIaaS Request Morning",
         "topic": "",
         "payload": "",
@@ -93,34 +93,35 @@
         "y": 385.8833312988281,
         "wires": [
             [
-                "6a3e4346.ca2e2c",
-                "116ea757.3de2b9"
+                "906eb1ac.2ed96",
+                "8cac5431.44d998"
             ]
         ]
     },
     {
-        "id": "f0f2295e.6d6558",
+        "id": "ea2c0568.8ac018",
         "type": "python3-function",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "Extract Response O-MI Node Lyon HW",
-        "func": "import time\n#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\n\nnodeName = \"Lyon\"\nlstForGeo = []\nparsedGeoAndCorrespondingTemp = []\nlstForPOI = []\ntempList = []\n\nif response == \"200\":\n node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n #getting the array of Objects with the Parking Facilities Data from Lyon\n lyonHeatWaveInfoItem = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0]\n organizationID = lyonHeatWaveInfoItem[\"id\"][0]\n \n for items in lyonHeatWaveInfoItem[\"Object\"]:\n    tempid = items[\"id\"][0]\n    if tempid == \"OrganizationalUnit:DINSI\":\n        templist = items[\"Object\"]\n        for objs in templist:\n            tempid2 = objs[\"id\"][0]\n            if tempid2 == \"Deployment:Temperature:9ca1aa66-a9c1-44f8-ba5e-659afeaaa396\":\n                lstForPOI = objs[\"Object\"]\n \n #getting the Geo Coordinates ....\n for geoloc in lstForPOI:\n    infoItem = geoloc[\"InfoItem\"]\n    ids = geoloc[\"id\"][0]\n    date = time.strftime(\"%d/%m/%Y\")\n    dayPart = time.strftime(\"%X\")\n    if dayPart[:2] == \"19\":\n        dayPart = \"night\"\n    elif dayPart[:2] == \"08\":\n        dayPart = \"morning\"\n        \n    if ids[:6] == \"Sensor\": \n        objectItem = geoloc[\"Object\"]\n        longitude = 0\n        latitude = 0\n        resultTemp = 0\n    \n        #geo Coordinates get\n        for item in infoItem:\n            if item[\"$\"][\"name\"] == \"geo:long\":\n                longitude = item[\"value\"][0][\"_\"]\n            elif item[\"$\"][\"name\"] == \"geo:lat\":\n                latitude = item[\"value\"][0][\"_\"]\n     \n        #tempResult get\n        for items in objectItem:\n            if items[\"$\"][\"type\"] == \"sosa:Observation\":\n                resultTemp = items[\"InfoItem\"][0][\"value\"][0][\"_\"]\n        lstForGeo.append({\"geo\":[longitude, latitude], \"temp\":resultTemp, \"date\":date, \"time\":dayPart})\n        parsedGeoAndCorrespondingTemp.append({\"lon\":float(longitude), \"lat\":float(latitude), \"temprature\":resultTemp, \"date\":date, \"name\":ids, \"layer\":\"heatWave\"})\nelse:\n node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\nmsg[\"payload\"] = parsedGeoAndCorrespondingTemp\nreturn msg",
+        "func": "import time\nfrom bson import json_util, ObjectId\n\n#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\n\nnodeName = \"Lyon\"\nlstForGeo = []\nparsedGeoAndCorrespondingTemp = []\nlstForPOI = []\ntempList = []\n\nif response == \"200\":\n node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n #getting the array of Objects with the Parking Facilities Data from Lyon\n lyonHeatWaveInfoItem = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0]\n organizationID = lyonHeatWaveInfoItem[\"id\"][0]\n \n for items in lyonHeatWaveInfoItem[\"Object\"]:\n    tempid = items[\"id\"][0]\n    if tempid == \"OrganizationalUnit:DINSI\":\n        templist = items[\"Object\"]\n        for objs in templist:\n            tempid2 = objs[\"id\"][0]\n            if tempid2 == \"Deployment:Temperature:9ca1aa66-a9c1-44f8-ba5e-659afeaaa396\":\n                lstForPOI = objs[\"Object\"]\n \n #getting the Geo Coordinates ....\n for geoloc in lstForPOI:\n    infoItem = geoloc[\"InfoItem\"]\n    ids = geoloc[\"id\"][0]\n    date = time.strftime(\"%d/%m/%Y\")\n    dayPart = time.strftime(\"%X\")\n    if dayPart[:2] == \"19\":\n        dayPart = \"night\"\n    elif dayPart[:2] == \"08\":\n        dayPart = \"morning\"\n        \n    if ids[:6] == \"Sensor\": \n        objectItem = geoloc[\"Object\"]\n        longitude = 0\n        latitude = 0\n        resultTemp = 0\n    \n        #geo Coordinates get\n        for item in infoItem:\n            if item[\"$\"][\"name\"] == \"geo:long\":\n                longitude = item[\"value\"][0][\"_\"]\n            elif item[\"$\"][\"name\"] == \"geo:lat\":\n                latitude = item[\"value\"][0][\"_\"]\n     \n        #tempResult get\n        for items in objectItem:\n            if items[\"$\"][\"type\"] == \"sosa:Observation\":\n                resultTemp = items[\"InfoItem\"][0][\"value\"][0][\"_\"]\n        lstForGeo.append({\"geo\":[longitude, latitude], \"temp\":resultTemp, \"date\":date, \"time\":dayPart})\n        parsedGeoAndCorrespondingTemp.append({ \"_id\":str(ObjectId()), \"lon\":float(longitude), \"lat\":float(latitude), \"temprature\":resultTemp, \"date\":date, \"name\":ids, \"layer\":\"heatWave\"})\nelse:\n node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\nmsg[\"payload\"] = parsedGeoAndCorrespondingTemp\nreturn msg",
         "outputs": 1,
         "x": 722.61669921875,
         "y": 598.88330078125,
         "wires": [
             [
-                "5254f39a.bb7c4c",
-                "abe01121.653c9",
-                "a2d27b4a.d88d98",
-                "83f2acfd.24c61",
-                "b61e5b51.39bcc8"
+                "cac149ea.f49908",
+                "883df72a.066818",
+                "ee79e5fc.2acc38",
+                "2df76058.fac98",
+                "f0fa13c1.adc57",
+                "1d6e72e3.3dfd8d"
             ]
         ]
     },
     {
-        "id": "e9c6c334.06aaa",
+        "id": "c71267e0.7b1b38",
         "type": "inject",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "Execute UIaaS Request Night",
         "topic": "",
         "payload": "",
@@ -132,28 +133,15 @@
         "y": 494,
         "wires": [
             [
-                "6a3e4346.ca2e2c",
-                "116ea757.3de2b9"
+                "8cac5431.44d998",
+                "906eb1ac.2ed96"
             ]
         ]
     },
     {
-        "id": "abe01121.653c9",
-        "type": "python3-function",
-        "z": "6543b05.f4bba5",
-        "name": "writeToMongo",
-        "func": "\nreturn msg",
-        "outputs": 1,
-        "x": 978,
-        "y": 444,
-        "wires": [
-            []
-        ]
-    },
-    {
-        "id": "116ea757.3de2b9",
+        "id": "906eb1ac.2ed96",
         "type": "function",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "move and zoom",
         "func": "msg.payload = { command:{layer:\"Nat Geo\",lat:45.763484 ,lon:4.851277 ,zoom:10} };\nreturn msg;",
         "outputs": 1,
@@ -162,14 +150,14 @@
         "y": 534,
         "wires": [
             [
-                "a2d27b4a.d88d98"
+                "883df72a.066818"
             ]
         ]
     },
     {
-        "id": "cf91f931.1ac048",
+        "id": "a9542d75.25a66",
         "type": "inject",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "Inject This First",
         "topic": "",
         "payload": "",
@@ -181,14 +169,14 @@
         "y": 535,
         "wires": [
             [
-                "116ea757.3de2b9"
+                "906eb1ac.2ed96"
             ]
         ]
     },
     {
-        "id": "a2d27b4a.d88d98",
+        "id": "883df72a.066818",
         "type": "worldmap",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "",
         "lat": "",
         "lon": "",
@@ -204,10 +192,10 @@
         "wires": []
     },
     {
-        "id": "210f21.31d8a0e",
+        "id": "3cbac543.c7a03a",
         "type": "ui_text",
-        "z": "6543b05.f4bba5",
-        "group": "858f43af.12273",
+        "z": "86f1c4a.b59b638",
+        "group": "e00b55f3.ebcc88",
         "order": 1,
         "width": 0,
         "height": 0,
@@ -220,9 +208,9 @@
         "wires": []
     },
     {
-        "id": "b61e5b51.39bcc8",
+        "id": "8986ed5d.5aeca",
         "type": "python3-function",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "Warning Preprocessor",
         "func": "msg[\"payload\"] = \"Currently there is no heatwave danger!\"\nreturn msg",
         "outputs": 1,
@@ -230,14 +218,14 @@
         "y": 721,
         "wires": [
             [
-                "210f21.31d8a0e"
+                "3cbac543.c7a03a"
             ]
         ]
     },
     {
-        "id": "90efc636.d9d0c8",
+        "id": "4ea9f605.b92238",
         "type": "debug",
-        "z": "6543b05.f4bba5",
+        "z": "86f1c4a.b59b638",
         "name": "",
         "active": true,
         "console": "false",
@@ -247,17 +235,84 @@
         "wires": []
     },
     {
-        "id": "858f43af.12273",
+        "id": "f0fa13c1.adc57",
+        "type": "python3-function",
+        "z": "86f1c4a.b59b638",
+        "name": "Store on MongoDB",
+        "func": "# from modules.library import clean_netatmo_data2\nimport pymongo\nfrom pymongo import MongoClient\nfrom modules.library import insert_mongo\n\ndata = msg['payload']\nhost = 'mongodb'\ndb = 'myDB'\ncollection = 'biotope'\nres = insert_mongo(db, collection, data, host)\n\nreturn msg",
+        "outputs": 1,
+        "x": 1113,
+        "y": 370,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2df76058.fac98",
+        "type": "python3-function",
+        "z": "86f1c4a.b59b638",
+        "name": "writeToMongo",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 978,
+        "y": 444,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1d6e72e3.3dfd8d",
+        "type": "python3-function",
+        "z": "86f1c4a.b59b638",
+        "name": "ReadFromMongo",
+        "func": "import pymongo\nfrom pymongo import MongoClient\nfrom modules.library import read_mongo\nimport pandas as pd\n\ndata = msg['payload']\nhost = 'mongodb'\ndb = 'myDB'\ncollection = 'biotope'\nquery={}\nres = read_mongo(db, collection, query , host)\n\nabc = res.to_json(orient='records')\ncol = res.to_json(orient='columns')\n\nmsg['payload'] = col\nreturn msg",
+        "outputs": 1,
+        "x": 622.5,
+        "y": 883,
+        "wires": [
+            [
+                "30bedf1e.d6102",
+                "8986ed5d.5aeca"
+            ]
+        ]
+    },
+    {
+        "id": "ed217827.12b018",
+        "type": "debug",
+        "z": "86f1c4a.b59b638",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 853,
+        "y": 817,
+        "wires": []
+    },
+    {
+        "id": "30bedf1e.d6102",
+        "type": "json",
+        "z": "86f1c4a.b59b638",
+        "name": "",
+        "x": 785.5,
+        "y": 916,
+        "wires": [
+            [
+                "ed217827.12b018"
+            ]
+        ]
+    },
+    {
+        "id": "e00b55f3.ebcc88",
         "type": "ui_group",
         "z": "",
-        "name": "Geo Coordinates on Worldmap for Temprature Sensors",
-        "tab": "87d313ea.2c8b5",
+        "name": "Marked Temperature Sensors in Lyonw",
+        "tab": "69b97e12.dc029",
         "disp": true,
-        "width": "13",
+        "width": "40",
         "collapse": false
     },
     {
-        "id": "87d313ea.2c8b5",
+        "id": "69b97e12.dc029",
         "type": "ui_tab",
         "z": "",
         "name": "Lyon Heat Wave Mitigation",

@@ -1,0 +1,301 @@
+[
+    {
+        "id": "77190564.3e948c",
+        "type": "tab",
+        "label": "4_UIaaS_PFLyon_Interaction"
+    },
+    {
+        "id": "bcc93e4d.84b14",
+        "type": "inject",
+        "z": "77190564.3e948c",
+        "name": "Execute UIaaS Request",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 169,
+        "y": 290,
+        "wires": [
+            [
+                "c4098d0c.31b1d",
+                "1fb29386.c93dbc"
+            ]
+        ]
+    },
+    {
+        "id": "c4098d0c.31b1d",
+        "type": "omiNodeV9",
+        "z": "77190564.3e948c",
+        "name": "Read O-MI Node Lyon Parking Facillities",
+        "path_InfoItem": "http://veivi.parkkis.com:8080/Objects",
+        "token": "",
+        "operations": "Read",
+        "ttl": "80",
+        "interval": "",
+        "callback": "",
+        "newest": "",
+        "oldest": "",
+        "begin": "",
+        "end": "",
+        "value": "",
+        "reqID": "",
+        "metadata": true,
+        "readTypes": "read1time",
+        "x": 485,
+        "y": 289,
+        "wires": [
+            [
+                "1081fa1c.8ae716",
+                "95c054b1.9d4d08"
+            ]
+        ]
+    },
+    {
+        "id": "1081fa1c.8ae716",
+        "type": "debug",
+        "z": "77190564.3e948c",
+        "name": "OutputOMINodeLyon",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1208,
+        "y": 215,
+        "wires": []
+    },
+    {
+        "id": "95c054b1.9d4d08",
+        "type": "xml",
+        "z": "77190564.3e948c",
+        "name": "Lyon O-DF Structure to JSON",
+        "attr": "",
+        "chr": "",
+        "x": 830,
+        "y": 201,
+        "wires": [
+            [
+                "3a01858c.bebe4a",
+                "d680f541.a7e428"
+            ]
+        ]
+    },
+    {
+        "id": "3a01858c.bebe4a",
+        "type": "python3-function",
+        "z": "77190564.3e948c",
+        "name": "Extract Response O-MI Node Lyon",
+        "func": "#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\n\nlstForGeo = []\nlstForAvailability = []\nlstForOpeningHours = []\npointOfInterest = []\npointOfPark = []\npSpaces = []\nparsedGeoAndCorrespondingAvailability = []\nlstForParkingName = []\n\nif response == \"200\":\n node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n #getting the array of Objects with the Parking Facilities Data from Lyon\n lyonParkikisInfoItemArray = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"]\n \n for items in lyonParkikisInfoItemArray:\n     if items[\"id\"][0] == \"ParkingService\":\n         lyonParkikisInfoItem = items\n \n lyonParkikisObjectID = lyonParkikisInfoItem[\"id\"][0]\n lyonParkikisArrayofItems = lyonParkikisInfoItem[\"Object\"][0][\"Object\"]\n \n #Storing the result of three different types of Objects in three different lists, hence the indexes of the list items \n #correspond to a unanimous rootID\n for object in lyonParkikisArrayofItems:\n    parsedFacility = object[\"Object\"]\n    lstForParkingName.append(object[\"id\"][0])\n    for data in parsedFacility:\n        if data[\"id\"][0] == \"geo\":\n            lstForGeo.append(data['InfoItem'])\n        elif data[\"id\"][0] == \"ParkingSpaces\":\n            lstForAvailability.append(data[\"Object\"]) \n        else:\n            lstForOpeningHours = data\n \n #points for coordinates geo location\n for geo in lstForGeo:\n    longitude = 0.0\n    latitude = 0.0\n    for coords in geo:\n        if coords[\"$\"][\"name\"] == \"longitude\":\n            longitude = coords[\"value\"][0][\"_\"]\n        else:\n            latitude = coords[\"value\"][0][\"_\"]\n \n    pointOfInterest.append([ float(longitude), float(latitude) ]) \n \n #relative points of Parking Availabilities\n number = 0\n for ParkingSpaces in lstForAvailability:\n    parkID = \"000\"\n    parkAvailability = \"false\"\n    pointOfPark.append([])\n    for parkPlatz in ParkingSpaces:\n        parkID = parkPlatz[\"id\"][0]\n        parkAvailability = parkPlatz[\"InfoItem\"][0][\"value\"][0][\"_\"]\n        pointOfPark[number].append([ parkID , parkAvailability ])\n    number = number + 1\n \n #parsedGeoAndCorrespondingAvailability\n iterator = 0\n for items in pointOfInterest:\n    parsedGeoAndCorrespondingAvailability.append([{'geo': items },{'name': lstForParkingName[iterator]},{'ParkingSpaces': pointOfPark[iterator]}])\n    iterator = iterator + 1\n\nelse:\n node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\nmsg[\"payload\"] = parsedGeoAndCorrespondingAvailability;\n# msg[\"payload\"] = lyonParkikisInfoItem ;\nmsg[\"geoOnly\"] = pointOfInterest;\n\nreturn msg",
+        "outputs": 1,
+        "x": 825,
+        "y": 365,
+        "wires": [
+            [
+                "1081fa1c.8ae716",
+                "b5c676e1.a96ba8"
+            ]
+        ]
+    },
+    {
+        "id": "b5c676e1.a96ba8",
+        "type": "python3-function",
+        "z": "77190564.3e948c",
+        "name": "PreProcessing Map Data Lyon",
+        "func": "#Data processing to send for plotting on worldMap\ndataToDisplay = []\n\niterator = 0\nfor items in msg[\"payload\"]:\n longitude=items[0][\"geo\"][0]\n latitude=items[0][\"geo\"][1]\n name = items[1][\"name\"]\n iconColor=\"red\"\n \n dataToDisplay.append({\"lon\": longitude, \"lat\": latitude, \"layer\": \"ParkingSpaces\", \"name\":name, \"icon\":\"car\", \"iconColor\":iconColor})\n\n for spaces in items[2][\"ParkingSpaces\"]:\n    spaceName = spaces[0]\n    dataToDisplay[iterator][spaceName] = spaces[1]\n    availabilty = spaces[1]\n    if availabilty == \"true\":\n        iconColor = \"green\"\n        dataToDisplay[iterator][\"iconColor\"] = iconColor\n\n iterator = iterator+1\nmsg[\"payload\"] = dataToDisplay\nreturn msg",
+        "outputs": 1,
+        "x": 1084.5,
+        "y": 449,
+        "wires": [
+            [
+                "82841d7.a5f79e"
+            ]
+        ]
+    },
+    {
+        "id": "82841d7.a5f79e",
+        "type": "worldmap",
+        "z": "77190564.3e948c",
+        "name": "",
+        "lat": "",
+        "lon": "",
+        "zoom": "",
+        "layer": "",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "x": 1519.5,
+        "y": 553,
+        "wires": []
+    },
+    {
+        "id": "13d61d88.406e22",
+        "type": "function",
+        "z": "77190564.3e948c",
+        "name": "move and zoom",
+        "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:61.0,lon:23.0,zoom:3} };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1264,
+        "y": 553,
+        "wires": [
+            [
+                "82841d7.a5f79e"
+            ]
+        ]
+    },
+    {
+        "id": "eee48bf4.0f67b8",
+        "type": "inject",
+        "z": "77190564.3e948c",
+        "name": "Inject This First",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 1053,
+        "y": 554,
+        "wires": [
+            [
+                "13d61d88.406e22"
+            ]
+        ]
+    },
+    {
+        "id": "1fb29386.c93dbc",
+        "type": "omiNodeV9",
+        "z": "77190564.3e948c",
+        "name": "Read O-MI Node Helsinki Parking Facillities",
+        "path_InfoItem": "http://biotope.cs.hut.fi/omi/node/",
+        "token": "",
+        "operations": "Read",
+        "ttl": "",
+        "interval": "",
+        "callback": "",
+        "newest": "",
+        "oldest": "",
+        "begin": "",
+        "end": "",
+        "value": "",
+        "reqID": "",
+        "metadata": true,
+        "readTypes": "read1time",
+        "x": 474,
+        "y": 727,
+        "wires": [
+            [
+                "d3c06240.05f2e"
+            ]
+        ]
+    },
+    {
+        "id": "d3c06240.05f2e",
+        "type": "xml",
+        "z": "77190564.3e948c",
+        "name": "Helsinki O-DF Structure to JSON",
+        "attr": "",
+        "chr": "",
+        "x": 737,
+        "y": 910,
+        "wires": [
+            [
+                "c684d3cb.8d634"
+            ]
+        ]
+    },
+    {
+        "id": "c684d3cb.8d634",
+        "type": "python3-function",
+        "z": "77190564.3e948c",
+        "name": "Extract Response O-MI Node Helsinki",
+        "func": "#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\n\nnodeName = \"Helsinki\"\nlstForGeo = []\nlstForAvailability = []\nlstForOpeningHours = []\nlstForCapacities = []\npointOfInterest = []\npointOfPark = []\npSpaces = []\nparsedGeoAndCorrespondingAvailability = []\nlstForParkingName = []\n\nif response == \"200\":\n    node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n    #getting the array of Objects with the Parking Facilities Data from Lyon\n    helsinkiParkikisInfoItem = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"]\n    \n    #Iterating the list for the Object with Parking Facilities\n    for omiObject in helsinkiParkikisInfoItem:\n        if omiObject[\"id\"][0] == \"ParkingService\":\n            helsinkiParkikisInfoItemList = omiObject\n    \n    helsinkiParkikisObjectID = helsinkiParkikisInfoItemList[\"id\"][0] + \" : \" + nodeName\n    helsinkiParkikisArrayofItems = helsinkiParkikisInfoItemList[\"Object\"][0][\"Object\"]\n \n    #Storing the result of three different types of Objects in three different lists, hence the indexes of the list items \n    #correspond to a unanimous rootID\n    for object in helsinkiParkikisArrayofItems:\n        parsedFacility = object[\"Object\"]\n        lstForParkingName.append(object[\"id\"][0])\n        \n        geoBool = False\n        ParkingSpacesBool = False\n        openingHoursSpecificationBool = False\n        capacitiesBool = False\n        \n        #storing the object values in the respective arrays..\n        for data in parsedFacility:\n            tempId = data[\"id\"][0]\n            \n            if tempId == \"geo\":\n                lstForGeo.append({\"res\":data[\"InfoItem\"], \"err\":\"False\"})\n                geoBool = True\n            elif tempId == \"ParkingSpaces\":\n                lstForAvailability.append({\"res\":data[\"Object\"], \"err\":\"False\"})\n                ParkingSpacesBool = True\n            elif (tempId == \"openingHoursSpecification\") or (tempId == \"openingHoursSpecifications\"):\n                lstForOpeningHours.append({\"res\":data, \"err\":\"False\"})\n                openingHoursSpecificationBool = True\n            elif tempId == \"Capacities\":\n                lstForCapacities.append({\"res\":data[\"Object\"], \"err\":\"False\"})\n                capacitiesBool = True\n        \n        if geoBool == False:\n            lstForGeo.append({\"res\":\"geo\", \"err\":\"True\"})\n        elif ParkingSpacesBool == False:\n            lstForAvailability.append({\"res\":\"ParkingSpaces\", \"err\":\"True\"})\n        elif openingHoursSpecificationBool == False:\n            lstForOpeningHours.append({\"res\":\"openingHoursSpecification\", \"err\":\"True\"})\n        elif capacitiesBool == False:\n            lstForCapacities.append({\"res\":\"capacity\", \"err\":\"True\"})\n        \n        geoBool = False\n        ParkingSpacesBool = False\n        openingHoursSpecificationBool = False\n        capacitiesBool = False\n        \n    #points for geo coordinates\n    for data in lstForGeo:\n        if data[\"err\"] == \"False\":\n            longitude = 0.0\n            latitude = 0.0\n            for points in data[\"res\"]:\n                if points[\"$\"][\"name\"] == \"longitude\":\n                    longitude = points[\"value\"][0][\"_\"]\n                elif points[\"$\"][\"name\"] == \"latitude\":\n                    latitude = points[\"value\"][0][\"_\"]\n            pointOfInterest.append({\"coordinates\":[float(longitude),float(latitude)], \"err\":\"False\"})\n        elif data[\"err\"] == \"True\":\n            pointOfInterest.append({\"coordinates\":[float(longitude),float(latitude)], \"err\":\"True\"})\n    \n    #parking spaces for the corresponding coordinates\n    number = 0\n    for data in lstForAvailability:\n        pointOfPark.append({\"spaces\":[], \"err\":\"False\"})\n        parkID = 0\n        parkAvailability = False\n        if data[\"err\"] == \"False\":\n            for objects in data[\"res\"]:\n                parkID = objects[\"id\"][0]\n                for pois in objects[\"InfoItem\"]:\n                    if pois[\"$\"][\"name\"] == \"available\":\n                        parkAvailability = pois[\"value\"][0][\"_\"]\n                pointOfPark[number][\"spaces\"].append([parkID, parkAvailability])\n        elif data[\"err\"] == \"True\":\n            pointOfPark[\"err\"] = True\n        number = number + 1\n    \n    #clean pois in parsedGeoAndCorrespondingAvailability for preprocessor to map\n    iterator = 0\n    for items in pointOfInterest:\n        if items[\"err\"] == \"False\" and pointOfPark[iterator][\"err\"] == \"False\":\n            parsedGeoAndCorrespondingAvailability.append({\"geo\": items[\"coordinates\"], \"name\":lstForParkingName[iterator], \"parkingSpaces\":pointOfPark[iterator][\"spaces\"]})\n        iterator = iterator + 1\nelse:\n    node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\nmsg[\"payload\"] = parsedGeoAndCorrespondingAvailability ;\nmsg[\"geoOnly\"] = pointOfInterest;\n#msg[\"payload\"] = helsinkiParkikisInfoItemList;\n\nreturn msg",
+        "outputs": 1,
+        "x": 833,
+        "y": 810,
+        "wires": [
+            [
+                "9c861109.f6f08",
+                "5eb614.e1f779ec"
+            ]
+        ]
+    },
+    {
+        "id": "5eb614.e1f779ec",
+        "type": "python3-function",
+        "z": "77190564.3e948c",
+        "name": "PreProcessing Map Data Helsinki",
+        "func": "#Data processing to send for plotting on worldMap\ndataToDisplay = []\n\niterator = 0\nfor items in msg[\"payload\"]:\n    longitude=items[\"geo\"][0]\n    latitude=items[\"geo\"][1]\n    name = items[\"name\"]\n    iconColor=\"red\"\n \n    dataToDisplay.append({\"lon\": longitude, \"lat\": latitude, \"layer\": \"ParkingSpaces\", \"name\":name, \"icon\":\"fa-truck\", \"iconColor\":iconColor})\n\n    for spaces in items[\"parkingSpaces\"]:\n        spaceName = spaces[0]\n        dataToDisplay[iterator][spaceName] = spaces[1]\n        availabilty = spaces[1]\n        if availabilty == \"true\":\n            iconColor = \"green\"\n            dataToDisplay[iterator][\"iconColor\"] = iconColor\n\n    iterator = iterator+1\n    \nmsg[\"payload\"] = dataToDisplay\nreturn msg",
+        "outputs": 1,
+        "x": 1093,
+        "y": 725,
+        "wires": [
+            [
+                "82841d7.a5f79e"
+            ]
+        ]
+    },
+    {
+        "id": "9c861109.f6f08",
+        "type": "debug",
+        "z": "77190564.3e948c",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 1143,
+        "y": 890,
+        "wires": []
+    },
+    {
+        "id": "d680f541.a7e428",
+        "type": "debug",
+        "z": "77190564.3e948c",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 1158,
+        "y": 78,
+        "wires": []
+    },
+    {
+        "id": "ca0c314.5bd83d",
+        "type": "ui_template",
+        "z": "77190564.3e948c",
+        "group": "741b93a1.82a54c",
+        "name": "Map",
+        "order": 0,
+        "width": "0",
+        "height": "0",
+        "format": "<iframe src=\"http://biotope.iais.fraunhofer.de/node-red/worldmap/\" height=\"658\" width=\"1482\">\n <p>Your browser does not support iframes.</p>\n</iframe>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1428.5,
+        "y": 757,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "741b93a1.82a54c",
+        "type": "ui_group",
+        "z": "",
+        "name": "Parking Facilities and Charging Facilities on A WorldMap",
+        "tab": "ce46590a.7ae128",
+        "disp": true,
+        "width": "32",
+        "collapse": false
+    },
+    {
+        "id": "ce46590a.7ae128",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Smart Mobility Dashboard",
+        "icon": "dashboard",
+        "order": 4
+    }
+]

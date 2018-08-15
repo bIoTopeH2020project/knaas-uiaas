@@ -41,7 +41,7 @@ services:
       image: mongo
       volumes:
         - './data/db:/data/db'
-#      volumes_from: 
+#      volumes_from:
 #        - mongodata
 #      command: -smallfiles --rest --auth
 
@@ -63,5 +63,3 @@ services:
 
 
 #    freeboard:
-
-

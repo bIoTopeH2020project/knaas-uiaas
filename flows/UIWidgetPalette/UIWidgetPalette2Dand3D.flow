@@ -1,0 +1,411 @@
+[
+    {
+        "id": "a074e9f1.f88fd8",
+        "type": "ui_chart",
+        "z": "6998206f.ae364",
+        "name": "",
+        "group": "3cd83235.d859be",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "useOldStyle": false,
+        "x": 429,
+        "y": 227,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "d2858b82.8cc258",
+        "type": "inject",
+        "z": "6998206f.ae364",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 121,
+        "y": 379,
+        "wires": [
+            [
+                "5930cf9b.5d2d8",
+                "5aa748a2.a9d358",
+                "fd7db10d.4bbe8",
+                "dc2063a3.b8e31",
+                "bfac50b3.3e679",
+                "692c1930.a5dbf8",
+                "fca2f275.a5396",
+                "822c8170.a5dbe",
+                "10d7e29.fb0331d"
+            ]
+        ]
+    },
+    {
+        "id": "5930cf9b.5d2d8",
+        "type": "function",
+        "z": "6998206f.ae364",
+        "name": "Chart Data Source",
+        "func": "msg.payload= [{\n    \"series\": [\"X\", \"Y\", \"Z\" ],\n    \"data\": [ [5,6,9], [3,8,5], [6,7,2] ],\n    \"labels\": [ \"Jan\", \"Feb\", \"Mar\" ]\n}];\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 244,
+        "y": 256,
+        "wires": [
+            [
+                "a074e9f1.f88fd8"
+            ]
+        ]
+    },
+    {
+        "id": "fe3d5aab.410158",
+        "type": "ui_form",
+        "z": "6998206f.ae364",
+        "name": "",
+        "label": "",
+        "group": "7de2acfe.dd2764",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Text Input Type",
+                "value": "",
+                "type": "text",
+                "required": false
+            },
+            {
+                "label": "Number Input Type",
+                "value": "",
+                "type": "number",
+                "required": false
+            },
+            {
+                "label": "E-Mail Input Type",
+                "value": "",
+                "type": "email",
+                "required": false
+            },
+            {
+                "label": "Password Input Type",
+                "value": "",
+                "type": "password",
+                "required": false
+            },
+            {
+                "label": "Checkbox Input Type",
+                "value": "",
+                "type": "checkbox",
+                "required": false
+            },
+            {
+                "label": "Switch Input Type",
+                "value": "",
+                "type": "switch",
+                "required": false
+            }
+        ],
+        "formValue": {
+            "": false
+        },
+        "payload": "",
+        "topic": "",
+        "x": 415,
+        "y": 296,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5aa748a2.a9d358",
+        "type": "ui_toast",
+        "z": "6998206f.ae364",
+        "position": "top right",
+        "displayTime": "30",
+        "highlight": "",
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "topic": "This is a simple notification alert.",
+        "name": "Notification",
+        "x": 433,
+        "y": 370,
+        "wires": []
+    },
+    {
+        "id": "fd7db10d.4bbe8",
+        "type": "ui_template",
+        "z": "6998206f.ae364",
+        "group": "16a3b92b.034737",
+        "name": "",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\">\n    <form name=\"myForm\" ng-controller=\"ExampleController\">\n  <label>\n    <input type=\"radio\" ng-model=\"color.name\" value=\"red\">\n    Red\n  </label><br/>\n  <label>\n    <input type=\"radio\" ng-model=\"color.name\" ng-value=\"specialValue\">\n    Green\n  </label><br/>\n  <label>\n    <input type=\"radio\" ng-model=\"color.name\" value=\"blue\">\n    Blue\n  </label><br/>\n </form>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 575,
+        "y": 312,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dc2063a3.b8e31",
+        "type": "ui_slider",
+        "z": "6998206f.ae364",
+        "name": "",
+        "label": "slider",
+        "group": "2170e166.984ade",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "topic": "",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "x": 683,
+        "y": 419,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bfac50b3.3e679",
+        "type": "ui_switch",
+        "z": "6998206f.ae364",
+        "name": "",
+        "label": "switch",
+        "group": "8b559c00.6f4748",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "decouple": "false",
+        "topic": "",
+        "style": "",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 517,
+        "y": 520,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "692c1930.a5dbf8",
+        "type": "ui_template",
+        "z": "6998206f.ae364",
+        "group": "31c545fb.00bafa",
+        "name": "",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<style>\ntable {\n    font-family: arial, sans-serif;\n    border-collapse: collapse;\n    width: 100%;\n}\n\ntd, th {\n    border: 1px solid #dddddd;\n    text-align: left;\n    padding: 8px;\n}\n\ntr:nth-child(even) {\n    /*background-color: ;*/\n}\n</style>\n<table>\n  <tr>\n    <th>Company</th>\n    <th>Contact</th>\n    <th>Country</th>\n  </tr>\n  <tr>\n    <td>Alfreds Futterkiste</td>\n    <td>Maria Anders</td>\n    <td>Germany</td>\n  </tr>\n  <tr>\n    <td>Centro comercial Moctezuma</td>\n    <td>Francisco Chang</td>\n    <td>Mexico</td>\n  </tr>\n  <tr>\n    <td>Ernst Handel</td>\n    <td>Roland Mendel</td>\n    <td>Austria</td>\n  </tr>\n  <tr>\n    <td>Island Trading</td>\n    <td>Helen Bennett</td>\n    <td>UK</td>\n  </tr>\n  <tr>\n    <td>Laughing Bacchus Winecellars</td>\n    <td>Yoshi Tannamuri</td>\n    <td>Canada</td>\n  </tr>\n  <tr>\n    <td>Magazzini Alimentari Riuniti</td>\n    <td>Giovanni Rovelli</td>\n    <td>Italy</td>\n  </tr>\n</table>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 515,
+        "y": 621,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fca2f275.a5396",
+        "type": "ui_template",
+        "z": "6998206f.ae364",
+        "group": "13667491.3eaaab",
+        "name": "",
+        "order": 0,
+        "width": "14",
+        "height": "8",
+        "format": "<iframe src=\"http://biotope.iais.fraunhofer.de/node-red/worldmap/\" height=\"658\" width=\"1482\">\n <p>Your browser does not support iframes.</p>\n</iframe>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 594,
+        "y": 727,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "822c8170.a5dbe",
+        "type": "ui_text",
+        "z": "6998206f.ae364",
+        "group": "a79fd265.99846",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "text",
+        "format": "This is simple Text Widget",
+        "layout": "row-spread",
+        "x": 690,
+        "y": 490,
+        "wires": []
+    },
+    {
+        "id": "10d7e29.fb0331d",
+        "type": "ui_text_input",
+        "z": "6998206f.ae364",
+        "name": "",
+        "label": "",
+        "group": "1f73cd5.8f78933",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "text",
+        "delay": 300,
+        "topic": "",
+        "x": 774,
+        "y": 596,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3cd83235.d859be",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Chart Widget",
+        "tab": "a6456ac7.492308",
+        "order": 3,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "7de2acfe.dd2764",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Form Widget",
+        "tab": "a6456ac7.492308",
+        "order": 2,
+        "disp": true,
+        "width": "8",
+        "collapse": false
+    },
+    {
+        "id": "16a3b92b.034737",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Radio Input Widget using UI Template",
+        "tab": "a6456ac7.492308",
+        "order": 4,
+        "disp": true,
+        "width": "14",
+        "collapse": false
+    },
+    {
+        "id": "2170e166.984ade",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Slider Widget",
+        "tab": "a6456ac7.492308",
+        "order": 5,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "8b559c00.6f4748",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Switch Widget",
+        "tab": "a6456ac7.492308",
+        "order": 6,
+        "disp": true,
+        "width": "8",
+        "collapse": false
+    },
+    {
+        "id": "31c545fb.00bafa",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Table Widget using UI Template",
+        "tab": "a6456ac7.492308",
+        "order": 1,
+        "disp": true,
+        "width": "14",
+        "collapse": false
+    },
+    {
+        "id": "13667491.3eaaab",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Worldmap Widget using UI Template",
+        "tab": "a6456ac7.492308",
+        "order": 7,
+        "disp": true,
+        "width": "14",
+        "collapse": false
+    },
+    {
+        "id": "a79fd265.99846",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Text Widget",
+        "tab": "a6456ac7.492308",
+        "order": 8,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "1f73cd5.8f78933",
+        "type": "ui_group",
+        "z": "",
+        "name": "Node-RED Dashboard Text Input Widget",
+        "tab": "a6456ac7.492308",
+        "order": 9,
+        "disp": true,
+        "width": "8",
+        "collapse": false
+    },
+    {
+        "id": "a6456ac7.492308",
+        "type": "ui_tab",
+        "z": "",
+        "name": "2D and 3D UI Widgets",
+        "icon": "dashboard",
+        "order": 2
+    }
+]
