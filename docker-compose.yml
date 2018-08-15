@@ -17,6 +17,7 @@ services:
 #        - "3030:3030"
 
     o-mi-node:
+      container_name: omi-node
       build: o-mi-node/
       ports:
        - "8080:8080"
@@ -35,6 +36,7 @@ services:
 #      command: --break-mongo
 
     mongodb:
+      container_name: mongodb
 #      build: mongodb/
       ports:
         - "27017:27017"
@@ -51,6 +53,7 @@ services:
 #        - "8888:8888"
 
     node-red:
+      container_name: nodered
       build: node-red/
       ports:
         - "1880:1880"
@@ -59,7 +62,67 @@ services:
       links:
         - mongodb
         - o-mi-node
-#        - data-science
+
+    smartmobility:
+      container_name: smartmobility
+      build: node-red/
+      ports:
+        - "3000:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
+
+    heatwavemitigation:
+      container_name: heatwavemitigation
+      build: node-red/
+      ports:
+        - "1883:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
+
+    smartcomobility:
+      container_name: smartcomobility
+      build: node-red/
+      ports:
+        - "1886:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
+
+   bottlebankcitizen:
+      container_name: bottlebankcitizen
+      build: node-red/
+      ports:
+        - "1884:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
+
+   bottlebankwastemanagement:
+      container_name: bottlebankwastemanagement
+      build: node-red/
+      ports:
+        - "1885:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
 
 
-#    freeboard:
+    proxy:
+      container_name: proxy
+      image: proxy
+      build:
+        context: ./proxy
+      ports:
+        - "80:80"
