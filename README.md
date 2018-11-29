@@ -1,4 +1,4 @@
-# bIoTope's KnaaS(A Knowledge as a Service Framework in the IoT Era) and UIaaS(User Interface as a Service)
+# bIoTope's KnaaS(Knowledge as a Service Framework in the IoT Era) and UIaaS(User Interface as a Service)
 
 ## KnaaS
 KnaaS aims at providing a conceptual reference architecture for the knowledge discovery and sensor fusion in the future IoT. To do so, KnaaS in its current state of implementation makes use of Node-RED's flow-based programming interface along with advanced scientific computing and data science libraries. To enable the execution of these knowledge discovery libraries from the Node-RED's visual programming interface a Python Function Node was added. As a result, most of the scientific computing and data science libraries that offer a Python API become accessible in a unified manner inside the KnaaS framework.
