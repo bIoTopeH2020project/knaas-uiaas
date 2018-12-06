@@ -1,0 +1,373 @@
+[
+    {
+        "id": "8724aef9.b20c1",
+        "type": "tab",
+        "label": "7_Bottlebank_Waste_Management_Dashboard"
+    },
+    {
+        "id": "88ddda01.39ecd8",
+        "type": "inject",
+        "z": "8724aef9.b20c1",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 103.33332824707031,
+        "y": 243.3333282470703,
+        "wires": [
+            [
+                "8c183f60.90b9a"
+            ]
+        ]
+    },
+    {
+        "id": "8c183f60.90b9a",
+        "type": "omiNodeV9",
+        "z": "8724aef9.b20c1",
+        "name": "BottleBank O-MI Node",
+        "path_InfoItem": "https://biotope-omi.alpha.grandlyon.com/",
+        "token": "",
+        "operations": "Read",
+        "ttl": "40",
+        "interval": "",
+        "callback": "",
+        "newest": "",
+        "oldest": "",
+        "begin": "",
+        "end": "",
+        "value": "",
+        "reqID": "",
+        "metadata": true,
+        "readTypes": "read1time",
+        "x": 269.99996185302734,
+        "y": 309.9999952316284,
+        "wires": [
+            [
+                "d337f2a4.da318"
+            ]
+        ]
+    },
+    {
+        "id": "d337f2a4.da318",
+        "type": "xml",
+        "z": "8724aef9.b20c1",
+        "name": "BottleBank O-DF structure to JSON",
+        "attr": "",
+        "chr": "",
+        "x": 528.3332871331108,
+        "y": 310.00000699361163,
+        "wires": [
+            [
+                "bc0994ee.d077d8"
+            ]
+        ]
+    },
+    {
+        "id": "bc0994ee.d077d8",
+        "type": "python3-function",
+        "z": "8724aef9.b20c1",
+        "name": "Extract response from BottleBank O-MI Respnse",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 566.1112442016602,
+        "y": 358.8888921737671,
+        "wires": [
+            [
+                "e257065d.8236f8",
+                "ecc7d935.701e38",
+                "9b18fa8b.ee3728",
+                "ec9f9d76.97145",
+                "408b587a.e71248"
+            ]
+        ]
+    },
+    {
+        "id": "2f892676.cca59a",
+        "type": "worldmap",
+        "z": "8724aef9.b20c1",
+        "name": "",
+        "lat": "",
+        "lon": "",
+        "zoom": "",
+        "layer": "",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "x": 1146.1111450195312,
+        "y": 350.00001335144043,
+        "wires": []
+    },
+    {
+        "id": "e257065d.8236f8",
+        "type": "python3-function",
+        "z": "8724aef9.b20c1",
+        "name": "parseForTheWorldMap",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 878.3332824707031,
+        "y": 311.1111536026001,
+        "wires": [
+            [
+                "2f892676.cca59a"
+            ]
+        ]
+    },
+    {
+        "id": "88d5ac08.93ae3",
+        "type": "function",
+        "z": "8724aef9.b20c1",
+        "name": "move and zoom",
+        "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:61.0,lon:23.0,zoom:3} };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 933.3333129882812,
+        "y": 246.6666660308838,
+        "wires": [
+            [
+                "2f892676.cca59a"
+            ]
+        ]
+    },
+    {
+        "id": "c6f126ca.5a9588",
+        "type": "inject",
+        "z": "8724aef9.b20c1",
+        "name": "Inject This First",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 739,
+        "y": 246.55561685562134,
+        "wires": [
+            [
+                "88d5ac08.93ae3"
+            ]
+        ]
+    },
+    {
+        "id": "ecc7d935.701e38",
+        "type": "python3-function",
+        "z": "8724aef9.b20c1",
+        "name": "List Extraction for Most Used Bottlebanks",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 881.6667175292969,
+        "y": 416.6666736602783,
+        "wires": [
+            [
+                "c512df14.b88b"
+            ]
+        ]
+    },
+    {
+        "id": "9b18fa8b.ee3728",
+        "type": "python3-function",
+        "z": "8724aef9.b20c1",
+        "name": "List Extraction for Available Bottlebanks",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 850.0000610351562,
+        "y": 549.9999732971191,
+        "wires": [
+            [
+                "3ce65241.8a5d1e"
+            ]
+        ]
+    },
+    {
+        "id": "c512df14.b88b",
+        "type": "ui_template",
+        "z": "8724aef9.b20c1",
+        "group": "f19c4f16.7042b",
+        "name": "Most Used Bottle Banks",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1184.4444444444443,
+        "y": 414.44444444444446,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e359f8e1.407028",
+        "type": "ui_template",
+        "z": "8724aef9.b20c1",
+        "group": "a804f9c7.ab3ce8",
+        "name": "Most Unused Bottlebanks",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1184.4444198608398,
+        "y": 457.77777194976807,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ce65241.8a5d1e",
+        "type": "ui_template",
+        "z": "8724aef9.b20c1",
+        "group": "7ca0a07.b61b46",
+        "name": "Available Bottlebanks",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1171.111111111111,
+        "y": 506.66666666666663,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a285b51d.0cb4d8",
+        "type": "ui_template",
+        "z": "8724aef9.b20c1",
+        "group": "16f100d.2aa7fff",
+        "name": "Bottlebanks on Worldmap",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<iframe src=\"http://biotope.iais.fraunhofer.de/node-red/worldmap/\" height=\"658\" width=\"1482\">\n <p>Your browser does not support iframes.</p>\n</iframe>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1177.7778244018555,
+        "y": 554.444465637207,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bec48861.a16608",
+        "type": "ui_template",
+        "z": "8724aef9.b20c1",
+        "group": "b89be4a8.2e7ba8",
+        "name": "Notifications",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1137.7777671813965,
+        "y": 597.7777690887451,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ec9f9d76.97145",
+        "type": "python3-function",
+        "z": "8724aef9.b20c1",
+        "name": "List Extraction for Most Unused Bottlebanks",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 866.6666259765625,
+        "y": 489.99998021125793,
+        "wires": [
+            [
+                "e359f8e1.407028"
+            ]
+        ]
+    },
+    {
+        "id": "408b587a.e71248",
+        "type": "python3-function",
+        "z": "8724aef9.b20c1",
+        "name": "Notification Extraction",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 787.7777709960938,
+        "y": 609.9999542236328,
+        "wires": [
+            [
+                "bec48861.a16608"
+            ]
+        ]
+    },
+    {
+        "id": "f19c4f16.7042b",
+        "type": "ui_group",
+        "z": "",
+        "name": "Most Used Bottlebanks",
+        "tab": "a500a75.509cb58",
+        "order": 4,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "a804f9c7.ab3ce8",
+        "type": "ui_group",
+        "z": "",
+        "name": "Most Unused Bottlebanks",
+        "tab": "a500a75.509cb58",
+        "order": 5,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "7ca0a07.b61b46",
+        "type": "ui_group",
+        "z": "",
+        "name": "Available Bottlebanks",
+        "tab": "a500a75.509cb58",
+        "order": 1,
+        "disp": true,
+        "width": "16",
+        "collapse": false
+    },
+    {
+        "id": "16f100d.2aa7fff",
+        "type": "ui_group",
+        "z": "",
+        "name": "Bottlebanks on Worldmap",
+        "tab": "a500a75.509cb58",
+        "order": 3,
+        "disp": true,
+        "width": "24",
+        "collapse": false
+    },
+    {
+        "id": "b89be4a8.2e7ba8",
+        "type": "ui_group",
+        "z": "",
+        "name": "Notifications",
+        "tab": "a500a75.509cb58",
+        "order": 2,
+        "disp": true,
+        "width": "8",
+        "collapse": false
+    },
+    {
+        "id": "a500a75.509cb58",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Bottlebank Waste Management Dashboard",
+        "icon": "dashboard",
+        "order": 6
+    }
+]

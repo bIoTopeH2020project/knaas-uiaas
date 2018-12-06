@@ -1,0 +1,376 @@
+[
+    {
+        "id": "510decf1.947834",
+        "type": "tab",
+        "label": "6_Bottlebank_Citizen_Dashboard"
+    },
+    {
+        "id": "30e91946.db5736",
+        "type": "inject",
+        "z": "510decf1.947834",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 228.8888702392578,
+        "y": 286.66665840148926,
+        "wires": [
+            [
+                "8725740.772bc9"
+            ]
+        ]
+    },
+    {
+        "id": "8725740.772bc9",
+        "type": "omiNodeV9",
+        "z": "510decf1.947834",
+        "name": "BottleBank O-MI Node",
+        "path_InfoItem": "https://biotope-omi.alpha.grandlyon.com/",
+        "token": "",
+        "operations": "Read",
+        "ttl": "40",
+        "interval": "",
+        "callback": "",
+        "newest": "",
+        "oldest": "",
+        "begin": "",
+        "end": "",
+        "value": "",
+        "reqID": "",
+        "metadata": true,
+        "readTypes": "read1time",
+        "x": 403.3332748413086,
+        "y": 287.77777194976807,
+        "wires": [
+            [
+                "ce0c5f66.a2078"
+            ]
+        ]
+    },
+    {
+        "id": "ce0c5f66.a2078",
+        "type": "xml",
+        "z": "510decf1.947834",
+        "name": "BottleBank O-DF structure to JSON",
+        "attr": "",
+        "chr": "",
+        "x": 661.6666001213921,
+        "y": 287.7777837117513,
+        "wires": [
+            [
+                "bd058ad6.7d73b8"
+            ]
+        ]
+    },
+    {
+        "id": "bd058ad6.7d73b8",
+        "type": "python3-function",
+        "z": "510decf1.947834",
+        "name": "Extract response from BottleBank O-MI Respnse",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 699.4445571899414,
+        "y": 336.66666889190674,
+        "wires": [
+            [
+                "db2c1376.debb6",
+                "f8e772fd.07f38"
+            ]
+        ]
+    },
+    {
+        "id": "401d6654.3de288",
+        "type": "worldmap",
+        "z": "510decf1.947834",
+        "name": "",
+        "lat": "",
+        "lon": "",
+        "zoom": "",
+        "layer": "",
+        "cluster": "",
+        "maxage": "",
+        "usermenu": "show",
+        "layers": "show",
+        "panit": "false",
+        "x": 1279.4444580078125,
+        "y": 327.7777900695801,
+        "wires": []
+    },
+    {
+        "id": "db2c1376.debb6",
+        "type": "python3-function",
+        "z": "510decf1.947834",
+        "name": "parseForTheWorldMap",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 1011.6665954589844,
+        "y": 288.88893032073975,
+        "wires": [
+            [
+                "401d6654.3de288"
+            ]
+        ]
+    },
+    {
+        "id": "43bf1d62.7a5024",
+        "type": "ui_form",
+        "z": "510decf1.947834",
+        "name": "",
+        "label": "",
+        "group": "3f4aca96.ff89a6",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "",
+                "value": "",
+                "type": "text",
+                "required": true
+            }
+        ],
+        "formValue": {
+            "": ""
+        },
+        "payload": "",
+        "topic": "",
+        "x": 1266.6665802001953,
+        "y": 452.2222137451172,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7307cc13.ba88a4",
+        "type": "ui_template",
+        "z": "510decf1.947834",
+        "group": "ff7cee05.cbd21",
+        "name": "WorldMap",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<iframe src=\"http://biotope.iais.fraunhofer.de/node-red/worldmap/\" height=\"658\" width=\"1482\">\n <p>Your browser does not support iframes.</p>\n</iframe>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1286.6666564941406,
+        "y": 402.22221326828003,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "19820f87.9fb58",
+        "type": "function",
+        "z": "510decf1.947834",
+        "name": "move and zoom",
+        "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:61.0,lon:23.0,zoom:3} };\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1066.6666259765625,
+        "y": 224.44444274902344,
+        "wires": [
+            [
+                "401d6654.3de288"
+            ]
+        ]
+    },
+    {
+        "id": "69fb89b8.1d8868",
+        "type": "inject",
+        "z": "510decf1.947834",
+        "name": "Inject This First",
+        "topic": "",
+        "payload": "",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 872.3333129882812,
+        "y": 224.333393573761,
+        "wires": [
+            [
+                "19820f87.9fb58"
+            ]
+        ]
+    },
+    {
+        "id": "d0d8a309.7e361",
+        "type": "ui_template",
+        "z": "510decf1.947834",
+        "group": "3ae3861a.554dca",
+        "name": "Favorite Bottle Banks List",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1321.1110916137695,
+        "y": 513.3333473205566,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4c62d424.bba2ec",
+        "type": "ui_template",
+        "z": "510decf1.947834",
+        "group": "734cc0af.a3da9",
+        "name": "Available Bottlebanks List",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1321.1111373901367,
+        "y": 577.7777328491211,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6475f59.de9090c",
+        "type": "ui_slider",
+        "z": "510decf1.947834",
+        "name": "",
+        "label": "",
+        "group": "3ae3861a.554dca",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "topic": "",
+        "min": 0,
+        "max": "30",
+        "step": 1,
+        "x": 1262.2222862243652,
+        "y": 640.0000314712524,
+        "wires": [
+            [
+                "54eaf64e.510ed8",
+                "a15f1c85.64da3"
+            ]
+        ]
+    },
+    {
+        "id": "54eaf64e.510ed8",
+        "type": "ui_text",
+        "z": "510decf1.947834",
+        "group": "3ae3861a.554dca",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "Filtered Distance Label",
+        "label": "Distance",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 1314.4443359375,
+        "y": 725.5555629730225,
+        "wires": []
+    },
+    {
+        "id": "6c0fa184.c1979",
+        "type": "ui_text",
+        "z": "510decf1.947834",
+        "group": "3ae3861a.554dca",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "Filter Help",
+        "label": "Please use the slider below to filter the Bottlebanks based on the distance in meters",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "x": 1284.4444274902344,
+        "y": 785.5554790496826,
+        "wires": []
+    },
+    {
+        "id": "f8e772fd.07f38",
+        "type": "python3-function",
+        "z": "510decf1.947834",
+        "name": "List Extraction for Available Bottlebanks",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 891.6666870117188,
+        "y": 580.0000019073486,
+        "wires": [
+            [
+                "4c62d424.bba2ec"
+            ]
+        ]
+    },
+    {
+        "id": "a15f1c85.64da3",
+        "type": "python3-function",
+        "z": "510decf1.947834",
+        "name": "List Extraction for Available Bottlebanks",
+        "func": "\nreturn msg",
+        "outputs": 1,
+        "x": 961.1111602783203,
+        "y": 504.4444122314453,
+        "wires": [
+            [
+                "d0d8a309.7e361"
+            ]
+        ]
+    },
+    {
+        "id": "3f4aca96.ff89a6",
+        "type": "ui_group",
+        "z": "",
+        "name": "User Feedback",
+        "tab": "7d8cd70f.4bf118",
+        "order": 4,
+        "disp": true,
+        "width": "24",
+        "collapse": false
+    },
+    {
+        "id": "ff7cee05.cbd21",
+        "type": "ui_group",
+        "z": "",
+        "name": "Bottle Banks on World Map",
+        "tab": "7d8cd70f.4bf118",
+        "order": 3,
+        "disp": true,
+        "width": "24",
+        "collapse": false
+    },
+    {
+        "id": "3ae3861a.554dca",
+        "type": "ui_group",
+        "z": "",
+        "name": "Distance Willing To Travel",
+        "tab": "7d8cd70f.4bf118",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "734cc0af.a3da9",
+        "type": "ui_group",
+        "z": "",
+        "name": "Available BottleBanks",
+        "tab": "7d8cd70f.4bf118",
+        "order": 2,
+        "disp": true,
+        "width": "12",
+        "collapse": false
+    },
+    {
+        "id": "7d8cd70f.4bf118",
+        "type": "ui_tab",
+        "z": "",
+        "name": "Bottlebank Citizen Dashboard",
+        "icon": "dashboard",
+        "order": 5
+    }
+]
