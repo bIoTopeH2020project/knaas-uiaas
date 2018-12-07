@@ -16,7 +16,7 @@ The project has successfully passed its early alpha state. The core functionalit
 
 ### Prerequisites
 
-Please install Docker following the installation guide for your platform: https://docs.docker.com/install/
+Please install Docker following the installation guide for your platform: https://docs.docker.com/install/ and Docker Compose following the installation guide for your platform: https://docs.docker.com/compose/install/
 
 ### Building the project
 
