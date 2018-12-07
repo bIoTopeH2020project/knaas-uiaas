@@ -38,13 +38,13 @@ We provide below a brief summary of the codebase's structure so as to easily dep
 
 * [Deliverable D4.4](https://api.ning.com/files/2lCHlA6Jtw77ZCntCs4DT9FLTXkOdkxy93JbyYtn*z3Wgw2R6J754aJef1IqdjnAF6kQFeFtwIk6g3h1*rDOl4ZVjp6KsebE/D4.4.pdf) Framework for Knowledge Extraction from IoT Data Sources 
 * Deliverable D4.8 Framework for Knowledge Extraction from IoT Data Sources v2
-* [Deliverable D5.1](#) IoT Interaction Patterns Report
-* [Deliverable D5.2](#) Service Composition Framework
-* [Deliverable D5.4](#) 2D and 3D UI Widgets Library
+* Deliverable D5.1 IoT Interaction Patterns Report
+* Deliverable D5.2 Service Composition Framework
+* Deliverable D5.4 2D and 3D UI Widgets Library
 * [Deliverable D5.5](https://storage.ning.com/topology/rest/1.0/file/get/35619974?profile=original) Service Composition Framework v2
-* [Deliverable D5.7](#) 2D and 3D UI Widgets Library v2
+* Deliverable D5.7 2D and 3D UI Widgets Library v2
 
-The various use cases are implemented under the folders: [flows](flows/) and [modules](modules/). With regard to the ```~/knaas-uiaas/modules``` folder, it hosts a python module which provides some abstractions that permit  the data cleaning and the querying of the MongoDB server to be performed in an easier way. The ```~/knaas-uiaas/flows``` folder host four flows, which can be imported to the Node-RED environment following the instruction described in the follow [link](https://nodered.org/docs/getting-started/first-flow).
+The various use cases are implemented under the folders: [flows](flows/) and [modules](modules/). With regard to the ```~/knaas-uiaas/modules``` folder, it hosts a python module which provides some abstractions that permit  the data cleaning and the querying of the MongoDB server to be performed in an easier way. The ```~/knaas-uiaas/flows``` folder host eight flows(containing flows for both KnaaS and UIaaS), which can be imported to the Node-RED environment following the instruction described in the following [link](https://nodered.org/docs/getting-started/first-flow).
 
 Please not that in order to be able to deploy the flows, the needed credentials should be added inside the [modules](modules/config.yml) yaml configuration file.
 
