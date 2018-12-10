@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
 #    oori:
 #      image: biotope/oori
@@ -15,6 +15,19 @@ services:
 #      build: fuseki/
 #      ports:
 #        - "3030:3030"
+
+    web:
+      build: pysite/web/
+      ports:
+       - "4000:80"
+
+    nodejs:
+      build: pysite/Nodejs/
+      ports:
+       - "5080:5080"
+       - "8090:8090"
+      volumes:
+       - "./modules:/src/app/storage"
 
     o-mi-node:
       build: o-mi-node/

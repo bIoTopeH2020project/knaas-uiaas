@@ -56,16 +56,24 @@ RUN apt-get -y install python-pip
 RUN pip install sparqlwrapper
 RUN pip install rdflib
 
+USER root
 # install NumPy (Numerical Computation module for Python)
 RUN apt-get -y install build-essential python-dev
 RUN apt-get -y install python-numpy
+#RUN python -m pip install -U numpy
 
+USER root
 # install Scientific Libraries for Python
 RUN apt-get -y install python-scipy python-matplotlib python-pandas python-sympy python-nose
 #RUN apt-get -y install ipython ipython-notebook
 
+RUN apt-get install libblas-dev  liblapack-dev
+RUN apt-get -y install gfortran
+
 # install Scikit-learn (Data Mining for Python)
-RUN pip install -U scikit-learn
+RUN apt-get -y install python-sklearn
+#RUN pip install -U scikit-learn[alldeps]
+
 
 # install YAML (python YAML support)
 RUN apt-get -y install python-yaml
@@ -80,7 +88,7 @@ RUN pip install requests
 USER root
 RUN pip install statsmodels
 
-#intall nano for text editing in node-red
+#install nano for text editing in node-red
 USER root
 RUN apt-get install nano 
 
