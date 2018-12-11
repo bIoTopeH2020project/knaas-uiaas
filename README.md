@@ -39,9 +39,9 @@ We provide below a brief summary of the codebase's structure so as to easily dep
 
 * [Deliverable D4.4](https://api.ning.com/files/2lCHlA6Jtw77ZCntCs4DT9FLTXkOdkxy93JbyYtn*z3Wgw2R6J754aJef1IqdjnAF6kQFeFtwIk6g3h1*rDOl4ZVjp6KsebE/D4.4.pdf) Framework for Knowledge Extraction from IoT Data Sources 
 * Deliverable D4.8 Framework for Knowledge Extraction from IoT Data Sources v2
-* Deliverable D5.1 IoT Interaction Patterns Report
-* Deliverable D5.2 Service Composition Framework
-* Deliverable D5.4 2D and 3D UI Widgets Library
+* [Deliverable D5.1](https://api.ning.com/files/klx1aEk42WptO9DnLtcc*lX5OwBFJ533uZy6ORLxxoxJMViUEsOzunCRVSWEBN9rL9WI-Nq2S2-j84*yBmF596f-9wqRDJeN/bIoTope_D5.1_interaction_patterns_report_v1.0.pdf) IoT Interaction Patterns Report
+* [Deliverable D5.2](https://api.ning.com/files/2lCHlA6Jtw5BXVxUesaSvCc7TxUA4rhxjAz8nwWPxLjjDk5Dlv3Dc1xFfq0In1R1UOnuS9qmMBlhMhpfWokVYMD0OibR9jk0/D5.2.pdf) Service Composition Framework
+* [Deliverable D5.4](https://api.ning.com/files/2lCHlA6Jtw5cckHNNdVJUud7YNHq0SXJP3ep41z*-ayhcQQ72FhcqCjkTZXAtVDnHzoWG4gGONlkb4kaOl4sk5xEnoQx10hb/D5.4.pdf) 2D and 3D UI Widgets Library
 * [Deliverable D5.5](https://storage.ning.com/topology/rest/1.0/file/get/35619974?profile=original) Service Composition Framework v2
 * Deliverable D5.7 2D and 3D UI Widgets Library v2
 
