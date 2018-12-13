@@ -1,13 +1,13 @@
 [
     {
-        "id": "a0f92ef0.f4108",
+        "id": "5c6d7f1b.ed3438",
         "type": "tab",
         "label": "8_Brussels_Smart_CoMobility"
     },
     {
-        "id": "7be1bf1c.b220a",
+        "id": "18a0c8bb.75a05f",
         "type": "inject",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "topic": "",
         "payload": "",
@@ -19,16 +19,16 @@
         "y": 134.5,
         "wires": [
             [
-                "7195b372.35115c",
-                "251f9ddb.c3959a",
-                "4440ba0b.e0bda4"
+                "ade74a9f.ef93c",
+                "c4952a97.8d447",
+                "98f55760.09e2d"
             ]
         ]
     },
     {
-        "id": "6dfca535.41d5b4",
+        "id": "1371fdce.baa322",
         "type": "debug",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "active": false,
         "console": "false",
@@ -38,9 +38,9 @@
         "wires": []
     },
     {
-        "id": "4440ba0b.e0bda4",
+        "id": "98f55760.09e2d",
         "type": "omiNodeV9",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Road Issues",
         "path_InfoItem": "http://biotope-o-mi.irisnetlab.be/Objects/sas-issue",
         "token": "",
@@ -60,14 +60,14 @@
         "y": 517,
         "wires": [
             [
-                "6fbf39cb.51db1"
+                "3b331d55.696d2a"
             ]
         ]
     },
     {
-        "id": "7195b372.35115c",
+        "id": "ade74a9f.ef93c",
         "type": "omiNodeV9",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Transport Statistics",
         "path_InfoItem": "http://biotope-o-mi.irisnetlab.be/Objects/sas-statistics",
         "token": "",
@@ -87,14 +87,14 @@
         "y": 84,
         "wires": [
             [
-                "701005c8.459634"
+                "641b5b89.fe7ce4"
             ]
         ]
     },
     {
-        "id": "251f9ddb.c3959a",
+        "id": "c4952a97.8d447",
         "type": "omiNodeV9",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Co-Mobility Routes",
         "path_InfoItem": "http://biotope-o-mi.irisnetlab.be/Objects/sas-comobility",
         "token": "",
@@ -114,14 +114,14 @@
         "y": 179,
         "wires": [
             [
-                "3b1b9ca6.2f2fdc"
+                "ead4d07b.514ef"
             ]
         ]
     },
     {
-        "id": "701005c8.459634",
+        "id": "641b5b89.fe7ce4",
         "type": "xml",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Lyon O-DF Structure to JSON",
         "attr": "",
         "chr": "",
@@ -129,14 +129,14 @@
         "y": 44,
         "wires": [
             [
-                "ff90a70c.2c3c3"
+                "8bdf0014.37b7"
             ]
         ]
     },
     {
-        "id": "3b1b9ca6.2f2fdc",
+        "id": "ead4d07b.514ef",
         "type": "xml",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Lyon O-DF Structure to JSON",
         "attr": "",
         "chr": "",
@@ -144,14 +144,14 @@
         "y": 177,
         "wires": [
             [
-                "a744858c.9294e8"
+                "fc665f76.a22e7"
             ]
         ]
     },
     {
-        "id": "6fbf39cb.51db1",
+        "id": "3b331d55.696d2a",
         "type": "xml",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Lyon O-DF Structure to JSON",
         "attr": "",
         "chr": "",
@@ -159,14 +159,14 @@
         "y": 516,
         "wires": [
             [
-                "2f43bf93.66636"
+                "5a7d6308.af541c"
             ]
         ]
     },
     {
-        "id": "ff90a70c.2c3c3",
+        "id": "8bdf0014.37b7",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Extract Transport Response",
         "func": "response = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\nchartValue = [] ;\nchartValue.append({'labels': [] , 'series': ['Series A', 'Series B', 'Series C'], 'data': [[]] });\n\n\nif response == \"200\":\n    node.log(\"Extract Response O-MI Node: Success in reading O-MI node content of Trasnport Statistics\")\n    \n    #Object with the values for Info Item \n    objectValue = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0][\"Object\"][0];\n\n    if objectValue[\"id\"][0] == \"transport-mode\":\n        \n        #parsing through the Object with Statistics value\n        for items in objectValue[\"InfoItem\"]:\n            chartValue[0]['labels'].append(items[\"$\"][\"name\"]);  \n            chartValue[0]['data'][0].append(items[\"value\"][0]['_']);            \n\n\nelse:\n    node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents of Trasnport Statistics\")\n\nmsg[\"payload\"] = chartValue ;\nreturn msg",
         "outputs": 1,
@@ -174,14 +174,14 @@
         "y": 110,
         "wires": [
             [
-                "c0a62b63.f15f"
+                "1ac587bc.f49928"
             ]
         ]
     },
     {
-        "id": "a744858c.9294e8",
+        "id": "fc665f76.a22e7",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Extract Co-Mobility Routes",
         "func": "import random\n\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\ncoMobility  = [];\ncoMobilityMarkers = [];\nitemNames = [];\ncoords = [];\n\ndef geoCoordinates( infoItem, activity ):\n    cood = {} ;\n    lat = lon = 0.0 ;\n\n    node.log(\"Activity Type:\" + activity);\n    \n    if activity != 'currentList':\n        for geo in infoItem:\n            if geo[\"$\"][\"name\"] == \"latitude\":\n                cood['latitude'] = lat = geo[\"value\"][0][\"_\"];\n            elif geo[\"$\"][\"name\"] == \"longitude\":\n                cood['longitude'] = lon = geo[\"value\"][0][\"_\"];\n            else:\n                node.log(\"No match found\");\n            \n        if (lat == 0 and lon == 0):\n            cood = None ;\n    else:\n        for geo in infoItem:\n            if geo[\"$\"][\"name\"] == \"latitude\":\n                lato = [];\n                geo['value'].sort(key=lambda x:x['$']['dateTime'])\n                for lati in geo['value']:\n                    lato.append(lati['_']);\n                    \n                cood['latitude'] = lat = lato ;\n                \n            elif geo[\"$\"][\"name\"] == \"longitude\":\n                longo = [];\n                geo['value'].sort(key=lambda x:x['$']['dateTime'])\n                for longi in geo['value']:\n                    longo.append(longi['_']);\n                \n                cood['longitude'] = lon = longo;\n            else:\n                node.log(\"No match found\");\n            \n        if (lat == None and lon == None):\n            cood = None ;\n        \n    return cood;\n    \n    \nif response == \"200\":\n    node.log(\"Extract Response O-MI Node: Success in reading O-MI node content of Co-Mobility Routes\")\n     \n    #Object Values for Road Issues\n    objectValue = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0];\n    coord4Current = [];\n    coord4Current2 = [];\n\n\n    for items in objectValue['Object']:\n        coord1 = coord2 = coord3 = { 'latitude': 0.0, 'longitude': 0.0 } ;\n        transportMode = itemId = numberOfChildren = icon = \"\" ;\n        \n        itemId = items['id'][0] ;\n        node.log(\"Activity  ID: \" + itemId )\n        \n        #iterating over the infoItems:\n        for iterator in items['InfoItem']:\n            icon = '';\n            if iterator[\"$\"][\"name\"] == \"numberOfChildren\":\n                numberOfChildren = iterator[\"value\"][0][\"_\"];\n            elif iterator[\"$\"][\"name\"] == \"transportMode\":\n                transportMode =  iterator[\"value\"][0][\"_\"];\n                if transportMode.lower() == \"walking\":\n                    icon = \"fa-male\";\n                elif transportMode.lower() == \"driving\":\n                    icon = \"car\";\n                elif transportMode.lower() == \"bicycling\":\n                    icon = \"fa-bicycle\";\n                elif transportMode.lower() == \"transit\":\n                    icon = \"fa-crosshairs\";\n                else :\n                    icon = \"fa-map-marker\";\n        \n        if 'Object' in items:\n            #iterating over the start and end points\n            for geo in items['Object']:\n                cordtemp = {};\n                color = \"\";\n                activity = \"\";\n                \n                node.log(\"Loop for iterating over the coordinate objects\");\n                \n                if geo['id'][0] == \"current\":\n                    activity = \"current\";\n                    coord1 = geoCoordinates(geo['InfoItem'], activity);\n                    coord4Current = geoCoordinates(geo['InfoItem'], 'currentList');\n                    coord4Current2.append(geo['InfoItem'])  ;\n                    cordtemp = coord1 ;\n                    color = 'green' \n                elif geo['id'][0] == \"end\":\n                    activity = \"end\";\n                    coord2 = geoCoordinates(geo['InfoItem'], activity);\n                    cordtemp = coord2 ;\n                    color = 'black' ;\n                elif geo['id'][0] == \"start\":\n                    activity = \"start\";\n                    coord3 = geoCoordinates(geo['InfoItem'], activity);\n                    cordtemp = coord3 ;\n                    color = 'black' ;\n                \n                coMobilityMarkers.append({ 'name': itemId+activity, 'activity': activity  , 'lon': float(cordtemp['longitude']) , 'lat': float(cordtemp['latitude']), 'icon': 'fa-map-marker', 'iconColor': color, 'numberOfChildren': numberOfChildren, 'transportMode': transportMode, \"layer\":\"OSMhot\" });\n                itemNames.append({'name': itemId + \" \" + activity, 'children': numberOfChildren});\n                coords.append( [float(cordtemp['latitude']) , float(cordtemp['longitude'])]  );\n        \n        coMobility.append({ 'name': itemId , 'line': [] , 'color': \"#{:06x}\".format(random.randint(0, 0xFFFFFF)) ,  \"layer\":\"OSMhot\" });\n        #append coordinates for drawing line:\n         \n        #coMobility[-1]['line'].append([ float(coord3['latitude']), float(coord3['longitude'])]);\n        #node.log(coMobility[-1]['line'][-1]);\n        length = len(coMobility) -1 ;\n\n        if coord3 != None and coord3['latitude'] != 0.0 and coord3['longitude'] != 0.0 :\n            coMobility[length]['line'].append([ float(coord3['latitude']), float(coord3['longitude'])]) ;\n            coords.append([ float(coord3['latitude']), float(coord3['longitude'])]);\n        node.log(\"Coord3 Finished\")  \n        \n        if coord1 != None and coord1['latitude'] != 0.0 and coord1['longitude'] != 0.0:\n            coMobility[length]['line'].append([ coord4Current['latitude'] , coord4Current['longitude'] ]) ;\n            lengthLat = 0 ;\n            lengthLong = 0 ;\n            \n            for coordinate, coordinate2 in zip( coord4Current['latitude'], coord4Current['longitude'] ):\n                coord4Current['latitude'][lengthLat] = float(coord4Current['latitude'][lengthLat]);\n                coord4Current['longitude'][lengthLong] = float(coord4Current['longitude'][lengthLong]) ;\n                lengthLat = lengthLat + 1 ;\n                lengthLong = lengthLong + 1 ;\n                coords.append([float(coordinate), float(coordinate2)])\n\n        if coord2 != None and coord2['latitude'] != 0.0 and coord2['longitude'] != 0.0:\n            coMobility[length]['line'].append([ float(coord2['latitude']) , float(coord2['longitude'])]) ;\n            coords.append([ float(coord2['latitude']), float(coord2['longitude'])]);\n\n        \nelse:\n     node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents of Co-Mobility Routes\")\n\nnode.log(\"Ot of the loop\")\n#msg['ids'] = list(set(itemNames));\nmsg['ids'] = itemNames;\nmsg['markers'] = coMobilityMarkers;\nmsg['lines'] = coMobility;\nmsg['current'] = coord4Current ;\nmsg['coordinates'] = coords ;\n\nreturn msg",
         "outputs": 1,
@@ -189,19 +189,19 @@
         "y": 162,
         "wires": [
             [
-                "6dfca535.41d5b4",
-                "e7b98d9b.38275",
-                "302f8653.e48ea2",
-                "c6070b0b.dcd888",
-                "c7eed648.f43728",
-                "18ac5a4e.25e19e"
+                "1371fdce.baa322",
+                "37f1b5b3.2580da",
+                "e8145ea7.7430b8",
+                "d373a472.51d29",
+                "da29493f.af7c7",
+                "14472edd.cbd501"
             ]
         ]
     },
     {
-        "id": "2f43bf93.66636",
+        "id": "5a7d6308.af541c",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Extract Road Issues",
         "func": "response = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\n\nroadIssues = [];\nitemNames = [];\ncoordinates = [];\n\nif response == \"200\":\n    node.log(\"Extract Response O-MI Node: Success in reading O-MI node content of Road Issues\")\n     \n    #Object Values for Road Issues\n    objectValue = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0];\n    \n    for items in objectValue['Object']:\n        itemid = longitude = latitude = category = active = transportMode = itemType = icon = \"\" ;\n        itemid = items['id'][0] ;\n        \n        if items['Object'][0]['id'][0] == \"geo\":\n            for geo in items['Object'][0]['InfoItem']:\n                if geo[\"$\"][\"name\"] == \"latitude\":\n                    latitude = geo[\"value\"][0][\"_\"];\n                elif geo[\"$\"][\"name\"] == \"longitude\":\n                    longitude = geo[\"value\"][0][\"_\"];\n                else:\n                    node.log(\"No match found\");\n            \n        for iterator in items['InfoItem']:\n            if iterator[\"$\"][\"name\"] == \"category\":\n                category = iterator[\"value\"][0][\"_\"];\n            elif iterator[\"$\"][\"name\"] == \"active\":\n                active =  iterator[\"value\"][0][\"_\"];\n            elif iterator[\"$\"][\"name\"] == \"transportMode\":\n                transportMode =  iterator[\"value\"][0][\"_\"];\n                if transportMode.lower() == \"walking\":\n                    icon = \"fa-male\";\n                elif transportMode.lower() == \"driving\":\n                    icon = \"car\";\n                elif transportMode.lower() == \"bicycling\":\n                    icon = \"fa-bicycle\";\n                elif transportMode.lower() == \"transit\":\n                    icon = \"fa-crosshairs\";\n                else :\n                    icon = \"fa-map-marker\";\n            elif iterator[\"$\"][\"name\"] == \"type\":\n                itemType =  iterator[\"value\"][0][\"_\"];\n\n        if active.lower() != \"false\":        \n            roadIssues.append({ \"issue\":itemType , \"lat\": float(latitude), \"lon\": float(longitude), \"category\": category, \"active\": active, \"transportMode\": transportMode, \"name\": str(itemid), \"layer\":\"OSMhot\", \"icon\": icon });\n            itemNames.append({ \"issue\":itemType , \"name\": str(itemid), });\n            coordinates.append([float(latitude), float(longitude)]);\n\nelse:\n     node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents of Road Issues\")\n\nmsg[\"coordinates\"]=coordinates;\nmsg[\"issues\"] = itemNames ;\nmsg[\"payload\"] = roadIssues ;\nreturn msg",
         "outputs": 1,
@@ -209,18 +209,18 @@
         "y": 573,
         "wires": [
             [
-                "e7903742.f9f5c8",
-                "a4164401.fce3d8",
-                "ed9cd5c8.bf8ec8"
+                "c8cb9674.e1a52",
+                "a3ec67e6.0ea86",
+                "24bafa02.56c20e"
             ]
         ]
     },
     {
-        "id": "c0a62b63.f15f",
+        "id": "1ac587bc.f49928",
         "type": "ui_chart",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Transport Type Chart",
-        "group": "b3ea3a79.233028",
+        "group": "f0284cb8.2db948",
         "order": 0,
         "width": 0,
         "height": 0,
@@ -258,9 +258,9 @@
         ]
     },
     {
-        "id": "c5ef5839.25b88",
+        "id": "36154c73.a7a9cc",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "move and zoom",
         "func": "msg.payload = { command:{ layer:\"Nat Geo\",lat:msg.payload[0] , lon:msg.payload[1] ,zoom:12 } };\nreturn msg;",
         "outputs": 1,
@@ -269,14 +269,14 @@
         "y": 580,
         "wires": [
             [
-                "e7903742.f9f5c8"
+                "c8cb9674.e1a52"
             ]
         ]
     },
     {
-        "id": "c8fca090.45494",
+        "id": "3941b452.2bebcc",
         "type": "inject",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Inject This First",
         "topic": "",
         "payload": "",
@@ -288,15 +288,15 @@
         "y": 580,
         "wires": [
             [
-                "c5ef5839.25b88"
+                "36154c73.a7a9cc"
             ]
         ]
     },
     {
-        "id": "e7b98d9b.38275",
+        "id": "37f1b5b3.2580da",
         "type": "ui_template",
-        "z": "a0f92ef0.f4108",
-        "group": "99c1cb2a.b9f7e8",
+        "z": "5c6d7f1b.ed3438",
+        "group": "a10fccb5.5e5f78",
         "name": "WorldMap",
         "order": 1,
         "width": "26",
@@ -312,9 +312,9 @@
         ]
     },
     {
-        "id": "e7903742.f9f5c8",
+        "id": "c8cb9674.e1a52",
         "type": "worldmap",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "lat": "",
         "lon": "",
@@ -331,9 +331,9 @@
         "wires": []
     },
     {
-        "id": "302f8653.e48ea2",
+        "id": "e8145ea7.7430b8",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "splitMarkers",
         "func": "\nmsg['payload'] = msg['markers'];\nreturn msg",
         "outputs": 1,
@@ -341,14 +341,14 @@
         "y": 197.5,
         "wires": [
             [
-                "e7903742.f9f5c8"
+                "c8cb9674.e1a52"
             ]
         ]
     },
     {
-        "id": "c6070b0b.dcd888",
+        "id": "d373a472.51d29",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "splitLines",
         "func": "\nmsg['payload'] = msg['lines'];\nreturn msg",
         "outputs": 1,
@@ -356,56 +356,56 @@
         "y": 81.5,
         "wires": [
             [
-                "62dcb892.843218"
+                "1e72eeae.c5ec71"
             ]
         ]
     },
     {
-        "id": "62dcb892.843218",
+        "id": "1e72eeae.c5ec71",
         "type": "split",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Split Dictionary Items",
         "splt": "\\n",
         "x": 1185.5,
         "y": 131.5,
         "wires": [
             [
-                "293bf701.3fe09"
+                "95f7637e.b4789"
             ]
         ]
     },
     {
-        "id": "16610b69.59aaf5",
+        "id": "5217b51d.a47d6c",
         "type": "worldmap-tracks",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "depth": "100",
         "name": "",
         "x": 1735.5,
         "y": 226,
         "wires": [
             [
-                "e7903742.f9f5c8"
+                "c8cb9674.e1a52"
             ]
         ]
     },
     {
-        "id": "fbf345cd.7d4b08",
+        "id": "7aef557c.a0f0e4",
         "type": "split",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Split Array Coordinates",
         "splt": "\\n",
         "x": 1446,
         "y": 166,
         "wires": [
             [
-                "16610b69.59aaf5"
+                "5217b51d.a47d6c"
             ]
         ]
     },
     {
-        "id": "293bf701.3fe09",
+        "id": "95f7637e.b4789",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Checking for Empty Coordinates ",
         "func": "\nvar len = msg.payload.line.length ;\nvar name = msg.payload.name;\nvar color = msg.payload.color;\nvar current = [];\n/**\nfunction currentPointArray( currentArray )\n{\n    latitudeLength = currentArray[0].length ;\n    longitudeLength = currentArray[1].length ;\n    \n    for( var i = 0 ; i < currentArray[0].length ; i++ )\n    {\n        //if currentArray[0][i];\n        \n        for( var k = 0 ; k < currentArray[1].length ; k++ )\n        {\n            \n        }\n    }\n}\n**/\n\nif (  len - 3 === 0  || len -2 === 0 || len - 1 === 0 )\n    start = { lat:parseFloat(msg.payload.line[0][0]), lon:parseFloat(msg.payload.line[0][1]), name:name, color: color }  ;\n\nif ( len - 2 === 1 && len - 1 === 2 )\n    //for (var items in msg.payload.line[1][0])\n    //current = currentPointArray( msg.payload.line[1] ); \n    for( var i = 0 ; i <  msg.payload.line[1][0].length ; i++ )\n    {\n        current.push({ lat: parseFloat(msg.payload.line[1][0][i]), lon: parseFloat(msg.payload.line[1][1][i]), name:name, color: color  });\n    }\n    \n    \nif(len - 1 === 1 )\n    end = { lat: parseFloat(msg.payload.line[1][0]), lon: parseFloat(msg.payload.line[1][1]) , name:name, color: color } ;\n\n    //current = { lat: msg.payload.line[1][0], lon:msg.payload.line[1][1], name:name, color: color  }  ;\n\nif ( len - 1 === 2  )\n    end = { lat: parseFloat(msg.payload.line[2][0]), lon: parseFloat(msg.payload.line[2][1]) , name:name, color: color } ;\n    \nmsg.payload = {};\n\nmsg.payload.start = start ;\nmsg.payload.current = current ;\nmsg.payload.end = end ;\n\nreturn msg;",
         "outputs": 1,
@@ -414,17 +414,17 @@
         "y": 66,
         "wires": [
             [
-                "fbf345cd.7d4b08",
-                "a2d1fbe3.3beb8",
-                "c3a1035c.f6d6b8",
-                "1ef79ceb.0cea03"
+                "7aef557c.a0f0e4",
+                "724ca900.437ad",
+                "8aa3a974.303ef",
+                "85530760.541248"
             ]
         ]
     },
     {
-        "id": "c7eed648.f43728",
+        "id": "da29493f.af7c7",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "splitCurrentCoords",
         "func": "\nmsg['payload'] = msg['ids'];\nreturn msg",
         "outputs": 1,
@@ -432,14 +432,14 @@
         "y": 398,
         "wires": [
             [
-                "3fac1054.648218"
+                "4d3160c9.d9d2c"
             ]
         ]
     },
     {
-        "id": "1ef79ceb.0cea03",
+        "id": "85530760.541248",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "currentCoords",
         "func": "\nif msg['payload']['current'] :\n    msg['payload'] = msg['payload']['current'];\n    return msg\n",
         "outputs": 1,
@@ -447,42 +447,42 @@
         "y": 62,
         "wires": [
             [
-                "5804687d.fa883"
+                "96314a7.778b738"
             ]
         ]
     },
     {
-        "id": "5804687d.fa883",
+        "id": "96314a7.778b738",
         "type": "split",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "splt": "\\n",
         "x": 1642.5,
         "y": 139,
         "wires": [
             [
-                "16610b69.59aaf5"
+                "5217b51d.a47d6c"
             ]
         ]
     },
     {
-        "id": "b692d8ce.66573",
+        "id": "d50e875c.4d51c",
         "type": "split",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "splt": "\\n",
         "x": 1813.5,
         "y": 29,
         "wires": [
             [
-                "16610b69.59aaf5"
+                "5217b51d.a47d6c"
             ]
         ]
     },
     {
-        "id": "a2d1fbe3.3beb8",
+        "id": "724ca900.437ad",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Start&EndPoints",
         "func": "\nmsg.payload.start = msg.payload['start'];\nmsg.payload.end = msg.payload['end'];\n\nreturn msg;",
         "outputs": 1,
@@ -491,15 +491,15 @@
         "y": 30,
         "wires": [
             [
-                "b692d8ce.66573"
+                "d50e875c.4d51c"
             ]
         ]
     },
     {
-        "id": "3fac1054.648218",
+        "id": "4d3160c9.d9d2c",
         "type": "ui_template",
-        "z": "a0f92ef0.f4108",
-        "group": "ab71e4ea.ae97e",
+        "z": "5c6d7f1b.ed3438",
+        "group": "f3e6295.e6612d8",
         "name": "Co-Mobility Route Nodes",
         "order": 0,
         "width": "6",
@@ -512,14 +512,14 @@
         "y": 323,
         "wires": [
             [
-                "aae5796f.eaa5f"
+                "5c5ef138.f61578"
             ]
         ]
     },
     {
-        "id": "aae5796f.eaa5f",
+        "id": "5c5ef138.f61578",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "searchCoMobilityRoutes",
         "func": "\nif(typeof msg.payload == \"string\")\n{\n    msg.payload = msg.payload.replace(/\\s/g, \"\").replace(\"start\", \"\").replace(\"end\", \"\").replace(\"current\", \"\");\n    msg.payload = { command:{search:msg.payload} };\n\n}else\n{\n    msg.payload = \"\";\n}\n\nreturn msg;",
         "outputs": 1,
@@ -528,30 +528,30 @@
         "y": 322,
         "wires": [
             [
-                "e7903742.f9f5c8",
-                "c2a060da.0e202"
+                "c8cb9674.e1a52",
+                "86631c48.ce146"
             ]
         ]
     },
     {
-        "id": "a4164401.fce3d8",
+        "id": "a3ec67e6.0ea86",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "splitLines",
         "func": "\nmsg['payload'] = msg['issues'];\nreturn msg",
         "outputs": 1,
-        "x": 974,
-        "y": 572,
+        "x": 987,
+        "y": 582,
         "wires": [
             [
-                "9614689.91c8698"
+                "117ac431.c99ecc"
             ]
         ]
     },
     {
-        "id": "af87f6c9.4b0fc8",
+        "id": "e23e25bd.51c9f8",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "searchRoadIssues",
         "func": "\nif(typeof msg.payload == \"string\")\n{\n    msg.payload = msg.payload;\n    msg.payload = { command:{search:msg.payload} };\n\n}else\n{\n    msg.payload = \"\";\n}\n\nreturn msg;",
         "outputs": 1,
@@ -560,15 +560,15 @@
         "y": 463,
         "wires": [
             [
-                "e7903742.f9f5c8"
+                "c8cb9674.e1a52"
             ]
         ]
     },
     {
-        "id": "9614689.91c8698",
+        "id": "117ac431.c99ecc",
         "type": "ui_template",
-        "z": "a0f92ef0.f4108",
-        "group": "870e7306.93c8e8",
+        "z": "5c6d7f1b.ed3438",
+        "group": "d35241c0.32dfe",
         "name": "Road Issues",
         "order": 1,
         "width": "14",
@@ -581,14 +581,14 @@
         "y": 461,
         "wires": [
             [
-                "af87f6c9.4b0fc8"
+                "e23e25bd.51c9f8"
             ]
         ]
     },
     {
-        "id": "b86ac8c6.f88b78",
+        "id": "e8f4800.08284",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "calculatingCenter",
         "func": "//function from:\n//https://stackoverflow.com/questions/6671183/calculate-the-center-point-of-multiple-latitude-longitude-coordinate-pairs\n\nfunction rad2degr(rad) { return rad * 180 / Math.PI; }\nfunction degr2rad(degr) { return degr * Math.PI / 180; }\n\n/**\n * @param latLngInDeg array of arrays with latitude and longtitude\n *   pairs in degrees. e.g. [[latitude1, longtitude1], [latitude2\n *   [longtitude2] ...]\n *\n * @return array with the center latitude longtitude pairs in \n *   degrees.\n */\nfunction getLatLngCenter(latLngInDegr) {\n    var LATIDX = 0;\n    var LNGIDX = 1;\n    var sumX = 0;\n    var sumY = 0;\n    var sumZ = 0;\n\n    for (var i=0; i<latLngInDegr.length; i++) {\n        var lat = degr2rad(latLngInDegr[i][LATIDX]);\n        var lng = degr2rad(latLngInDegr[i][LNGIDX]);\n        // sum of cartesian coordinates\n        sumX += Math.cos(lat) * Math.cos(lng);\n        sumY += Math.cos(lat) * Math.sin(lng);\n        sumZ += Math.sin(lat);\n    }\n\n    var avgX = sumX / latLngInDegr.length;\n    var avgY = sumY / latLngInDegr.length;\n    var avgZ = sumZ / latLngInDegr.length;\n\n    // convert average x, y, z coordinate to latitude and longtitude\n    var lng = Math.atan2(avgY, avgX);\n    var hyp = Math.sqrt(avgX * avgX + avgY * avgY);\n    var lat = Math.atan2(avgZ, hyp);\n\n    return ([rad2degr(lat), rad2degr(lng)]);\n}\n\ncoord = getLatLngCenter(msg['payload']);\n\nmsg['payload']= coord;\n\nreturn msg;",
         "outputs": 1,
@@ -597,15 +597,15 @@
         "y": 640,
         "wires": [
             [
-                "c5ef5839.25b88",
-                "850df267.c7ebe8"
+                "36154c73.a7a9cc",
+                "e6cbe181.32a1e"
             ]
         ]
     },
     {
-        "id": "ed9cd5c8.bf8ec8",
+        "id": "24bafa02.56c20e",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "CoordinateForMapCenterInput",
         "func": "\nmsg['payload'] = msg['coordinates'];\n\nreturn msg;",
         "outputs": 1,
@@ -614,14 +614,14 @@
         "y": 636,
         "wires": [
             [
-                "9413db52.3ed5b"
+                "ad972ed1.294c48"
             ]
         ]
     },
     {
-        "id": "18ac5a4e.25e19e",
+        "id": "14472edd.cbd501",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "splitCurrentCoords",
         "func": "\nmsg['payload'] = msg['coordinates'];\n#msg['complete'] = True;\n\nreturn msg",
         "outputs": 1,
@@ -629,14 +629,14 @@
         "y": 461,
         "wires": [
             [
-                "46a3df88.bbf3f"
+                "f04a9b86.913ae8"
             ]
         ]
     },
     {
-        "id": "46a3df88.bbf3f",
+        "id": "f04a9b86.913ae8",
         "type": "join",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "mode": "custom",
         "build": "array",
@@ -650,14 +650,14 @@
         "y": 708,
         "wires": [
             [
-                "14c35c03.79d3cc"
+                "51de0439.efd75c"
             ]
         ]
     },
     {
-        "id": "14c35c03.79d3cc",
+        "id": "51de0439.efd75c",
         "type": "python3-function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "MergingCoordinateArrays",
         "func": "\narrayOne = msg['payload'][0];\narrayTwo = msg['payload'][1];\n\n\nmsg['payload'] = arrayOne + arrayOne  ;\n\nreturn msg",
         "outputs": 1,
@@ -665,15 +665,15 @@
         "y": 710,
         "wires": [
             [
-                "b86ac8c6.f88b78",
-                "9ab292b6.68d4e8"
+                "e8f4800.08284",
+                "1bf2b643.cf1e3a"
             ]
         ]
     },
     {
-        "id": "9ab292b6.68d4e8",
+        "id": "1bf2b643.cf1e3a",
         "type": "debug",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "active": false,
         "console": "false",
@@ -683,9 +683,9 @@
         "wires": []
     },
     {
-        "id": "850df267.c7ebe8",
+        "id": "e6cbe181.32a1e",
         "type": "debug",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "active": false,
         "console": "false",
@@ -695,9 +695,9 @@
         "wires": []
     },
     {
-        "id": "9413db52.3ed5b",
+        "id": "ad972ed1.294c48",
         "type": "delay",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "pauseType": "delay",
         "timeout": "3",
@@ -713,14 +713,14 @@
         "y": 772,
         "wires": [
             [
-                "46a3df88.bbf3f"
+                "f04a9b86.913ae8"
             ]
         ]
     },
     {
-        "id": "c2a060da.0e202",
+        "id": "86631c48.ce146",
         "type": "debug",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "active": false,
         "console": "false",
@@ -730,9 +730,9 @@
         "wires": []
     },
     {
-        "id": "8acd3db.f4aff4",
+        "id": "5f55ca3d.dffcd4",
         "type": "inject",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "Inject This First",
         "topic": "",
         "payload": "",
@@ -744,14 +744,14 @@
         "y": 330,
         "wires": [
             [
-                "ba51f66f.404ad"
+                "f571e7b1.209a58"
             ]
         ]
     },
     {
-        "id": "ba51f66f.404ad",
+        "id": "f571e7b1.209a58",
         "type": "function",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "move and zoom",
         "func": "msg.payload = { command:{ search:\"121921\" } };\nreturn msg;",
         "outputs": 1,
@@ -760,14 +760,14 @@
         "y": 394,
         "wires": [
             [
-                "e7903742.f9f5c8"
+                "c8cb9674.e1a52"
             ]
         ]
     },
     {
-        "id": "c3a1035c.f6d6b8",
+        "id": "8aa3a974.303ef",
         "type": "debug",
-        "z": "a0f92ef0.f4108",
+        "z": "5c6d7f1b.ed3438",
         "name": "",
         "active": true,
         "console": "false",
@@ -777,51 +777,51 @@
         "wires": []
     },
     {
-        "id": "b3ea3a79.233028",
+        "id": "f0284cb8.2db948",
         "type": "ui_group",
         "z": "",
         "name": "Trasnport Types",
-        "tab": "77c05ad4.c6927c",
+        "tab": "a99be0e.3fc862",
         "order": 1,
         "disp": true,
         "width": "12",
         "collapse": false
     },
     {
-        "id": "99c1cb2a.b9f7e8",
+        "id": "a10fccb5.5e5f78",
         "type": "ui_group",
         "z": "",
         "name": "Brussels Co-Mobility Issues",
-        "tab": "77c05ad4.c6927c",
+        "tab": "a99be0e.3fc862",
         "order": 3,
         "disp": true,
         "width": "26",
         "collapse": false
     },
     {
-        "id": "ab71e4ea.ae97e",
+        "id": "f3e6295.e6612d8",
         "type": "ui_group",
         "z": "",
         "name": "Co-Mobility Route Nodes ",
-        "tab": "77c05ad4.c6927c",
+        "tab": "a99be0e.3fc862",
         "order": 4,
         "disp": true,
         "width": "6",
         "collapse": false
     },
     {
-        "id": "870e7306.93c8e8",
+        "id": "d35241c0.32dfe",
         "type": "ui_group",
         "z": "",
         "name": "Road Issues",
-        "tab": "77c05ad4.c6927c",
+        "tab": "a99be0e.3fc862",
         "order": 2,
         "disp": true,
         "width": "14",
         "collapse": false
     },
     {
-        "id": "77c05ad4.c6927c",
+        "id": "a99be0e.3fc862",
         "type": "ui_tab",
         "z": "",
         "name": "Transport Mode",

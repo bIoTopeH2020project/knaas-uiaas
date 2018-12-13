@@ -1,32 +1,32 @@
 [
     {
-        "id": "920228e3.9f3908",
+        "id": "fbc0e24f.4d993",
         "type": "tab",
         "label": "5_Lyon_Heat_Wave_UIaaS"
     },
     {
-        "id": "e7188be0.d86ec8",
+        "id": "24bb517b.231646",
         "type": "ui_template",
-        "z": "920228e3.9f3908",
-        "group": "e315b98.67035c8",
+        "z": "fbc0e24f.4d993",
+        "group": "59099a95.df4bf4",
         "name": "WorldMap",
         "order": 2,
-        "width": "56",
-        "height": "34",
+        "width": "30",
+        "height": "12",
         "format": "<iframe src=\"http://127.0.0.1:1880/worldmap/\" height=\"658\" width=\"1482\">\n <p>Your browser does not support iframes.</p>\n</iframe>",
         "storeOutMessages": true,
         "fwdInMessages": true,
         "templateScope": "local",
-        "x": 1447.88330078125,
-        "y": 260,
+        "x": 1437.88330078125,
+        "y": 158,
         "wires": [
             []
         ]
     },
     {
-        "id": "dac634a.683c6c8",
+        "id": "b8ebdb0.18844a8",
         "type": "omiNodeV9",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Read O-MI Node Lyon Heat Wave Mitigation",
         "path_InfoItem": "https://biotope-omi.alpha.grandlyon.com/Objects/Organization:Metropole-de-Lyon:v1-0-0",
         "token": "",
@@ -46,42 +46,42 @@
         "y": 225.88333129882812,
         "wires": [
             [
-                "a9c8acc3.e46d9"
+                "fdd7abe5.7e889"
             ]
         ]
     },
     {
-        "id": "13b0cb41.4f805d",
+        "id": "227265e6.7b3b9a",
         "type": "debug",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "OutputOMINodeLyon",
         "active": false,
         "console": "false",
         "complete": "payload",
-        "x": 1397.88330078125,
-        "y": 47.88330078125,
+        "x": 1162.88330078125,
+        "y": 48.88330078125,
         "wires": []
     },
     {
-        "id": "a9c8acc3.e46d9",
+        "id": "fdd7abe5.7e889",
         "type": "xml",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Lyon O-DF Structure to JSON",
         "attr": "",
         "chr": "",
-        "x": 839.88330078125,
-        "y": 176.88330078125,
+        "x": 857.88330078125,
+        "y": 177.88330078125,
         "wires": [
             [
-                "cfc39b1e.a410f",
-                "ec1bbaa6.8cdf8"
+                "13e006ba.7cc8c9",
+                "e4eef839.a7c81"
             ]
         ]
     },
     {
-        "id": "f5f9ac53.2bfbc8",
+        "id": "e62f400f.90f3e8",
         "type": "inject",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Execute UIaaS Request Morning",
         "topic": "",
         "payload": "",
@@ -93,34 +93,35 @@
         "y": 187.88333129882812,
         "wires": [
             [
-                "dac634a.683c6c8",
-                "26f4bffe.877578"
+                "b8ebdb0.18844a8",
+                "7cfb9b13.1a3834"
             ]
         ]
     },
     {
-        "id": "ec1bbaa6.8cdf8",
+        "id": "e4eef839.a7c81",
         "type": "python3-function",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Extract Response O-MI Node Lyon HW",
-        "func": "import time\nfrom bson import json_util, ObjectId\nfrom datetime import datetime, timedelta\n\n#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\n\nnodeName = \"Lyon\"\nlstForGeo = []\nparsedGeoAndCorrespondingTemp = []\nlstForPOI = []\ntempList = []\n\nif response == \"200\":\n node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n #getting the array of Objects with the Parking Facilities Data from Lyon\n lyonHeatWaveInfoItem = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0]\n organizationID = lyonHeatWaveInfoItem[\"id\"][0]\n \n for items in lyonHeatWaveInfoItem[\"Object\"]:\n    tempid = items[\"id\"][0]\n    if tempid == \"OrganizationalUnit:DINSI\":\n        templist = items[\"Object\"]\n        for objs in templist:\n            tempid2 = objs[\"id\"][0]\n            if tempid2 == \"Deployment:Sensing-Labs-IP68-Outdoor-Temperature-Sensor:I\" :\n                lstForPOI = lstForPOI + objs[\"Object\"]\n            elif tempid2 == \"Deployment:Sensing-Labs-IP68-Outdoor-Temperature-Sensor:II\" :\n                lstForPOI = lstForPOI + objs[\"Object\"]\n\n #getting the Geo Coordinates ....\n for geoloc in lstForPOI:\n    infoItem = geoloc[\"InfoItem\"]\n    ids = geoloc[\"id\"][0]\n    date = time.strftime(\"%Y/%m/%d\")\n    #date =  datetime.now()\n    dayPart = time.strftime(\"%X\")\n    if dayPart[:2] == \"19\":\n        dayPart = \"night\"\n    elif dayPart[:2] == \"08\":\n        dayPart = \"morning\"\n        \n    if ids[:6] == \"Sensor\": \n        objectItem = geoloc[\"Object\"]\n        longitude = 0\n        latitude = 0\n        resultTemp = 0\n    \n        #geo Coordinates get\n        for item in infoItem:\n            if item[\"$\"][\"name\"] == \"geo:long\":\n                longitude = item[\"value\"][0][\"_\"]\n            elif item[\"$\"][\"name\"] == \"geo:lat\":\n                latitude = item[\"value\"][0][\"_\"]\n     \n        #tempResult get\n        for items in objectItem:\n            if items[\"$\"][\"type\"] == \"sosa:Observation\":\n                resultTemp = items[\"InfoItem\"][0][\"value\"][0][\"_\"]\n        lstForGeo.append({\"geo\":[longitude, latitude], \"temp\":resultTemp, \"date\":date, \"time\":dayPart})\n        parsedGeoAndCorrespondingTemp.append({ \"_id\":str(ObjectId()), \"lon\":float(longitude), \"lat\":float(latitude), \"temprature\":resultTemp, \"date\":date, \"name\":ids, \"layer\":\"heatWave\"})\nelse:\n node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\nmsg[\"payload\"] = parsedGeoAndCorrespondingTemp\nreturn msg",
+        "func": "import time\nfrom bson import json_util, ObjectId\n\n#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\n\nnodeName = \"Lyon\"\nlstForGeo = []\nparsedGeoAndCorrespondingTemp = []\nlstForPOI = []\ntempList = []\n\nif response == \"200\":\n node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n #getting the array of Objects with the Parking Facilities Data from Lyon\n lyonHeatWaveInfoItem = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0]\n organizationID = lyonHeatWaveInfoItem[\"id\"][0]\n \n for items in lyonHeatWaveInfoItem[\"Object\"]:\n    tempid = items[\"id\"][0]\n    if tempid == \"OrganizationalUnit:DINSI\":\n        templist = items[\"Object\"]\n        for objs in templist:\n            tempid2 = objs[\"id\"][0]\n            if tempid2 == \"Deployment:Sensing-Labs-IP68-Outdoor-Temperature-Sensor:I\" :\n                lstForPOI = lstForPOI + objs[\"Object\"]\n            elif tempid2 == \"Deployment:Sensing-Labs-IP68-Outdoor-Temperature-Sensor:II\" :\n                lstForPOI = lstForPOI + objs[\"Object\"]\n\n #getting the Geo Coordinates ....\n for geoloc in lstForPOI:\n    infoItem = geoloc[\"InfoItem\"]\n    ids = geoloc[\"id\"][0]\n    date = time.strftime(\"%Y/%m/%d\")\n    timeRecord =  time.strftime(\"%H:%M:%S\")\n    dayPart = time.strftime(\"%X\")\n    \n    if dayPart[:2] == \"19\":\n        dayPart = \"night\"\n    elif dayPart[:2] == \"08\":\n        dayPart = \"morning\"\n        \n    if ids[:6] == \"Sensor\": \n        objectItem = geoloc[\"Object\"]\n        longitude = 0\n        latitude = 0\n        resultTemp = 0\n    \n        #geo Coordinates get\n        for item in infoItem:\n            if item[\"$\"][\"name\"] == \"geo:long\":\n                longitude = item[\"value\"][0][\"_\"]\n            elif item[\"$\"][\"name\"] == \"geo:lat\":\n                latitude = item[\"value\"][0][\"_\"]\n     \n        #tempResult get\n        for items in objectItem:\n            if items[\"$\"][\"type\"] == \"sosa:Observation\":\n                resultTemp = items[\"InfoItem\"][0][\"value\"][0][\"_\"]\n        lstForGeo.append({\"geo\":[longitude, latitude], \"temp\":resultTemp, \"date\":date, \"time\":dayPart})\n        parsedGeoAndCorrespondingTemp.append({ \"_id\":str(ObjectId()), \"lon\":float(longitude), \"lat\":float(latitude), \"temprature\":resultTemp, \"date\":date, \"time\": timeRecord, \"name\":ids, \"layer\":\"heatWave\"})\nelse:\n node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\nmsg[\"payload\"] = parsedGeoAndCorrespondingTemp\nreturn msg",
         "outputs": 1,
         "x": 861.61669921875,
         "y": 261.88330078125,
         "wires": [
             [
-                "e7188be0.d86ec8",
-                "fe3269e3.8c6e3",
-                "3ba5c3b7.cc501c",
-                "cfc39b1e.a410f",
-                "23f3d1b9.826816"
+                "24bb517b.231646",
+                "15825256.f6a456",
+                "13e006ba.7cc8c9",
+                "d40ba8af.192a6",
+                "a344ed8c.377be",
+                "a3bdbf3.7369c4"
             ]
         ]
     },
     {
-        "id": "9f6b4b55.0590b8",
+        "id": "358d438a.bcd174",
         "type": "inject",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Execute UIaaS Request Night",
         "topic": "",
         "payload": "",
@@ -128,19 +129,19 @@
         "repeat": "",
         "crontab": "00 19 * * *",
         "once": false,
-        "x": 180,
-        "y": 260,
+        "x": 183,
+        "y": 236,
         "wires": [
             [
-                "dac634a.683c6c8",
-                "26f4bffe.877578"
+                "b8ebdb0.18844a8",
+                "7cfb9b13.1a3834"
             ]
         ]
     },
     {
-        "id": "26f4bffe.877578",
+        "id": "7cfb9b13.1a3834",
         "type": "function",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "move and zoom",
         "func": "msg.payload = { command:{layer:\"Nat Geo\",lat:45.763484 ,lon:4.851277 ,zoom:10} };\nreturn msg;",
         "outputs": 1,
@@ -149,14 +150,14 @@
         "y": 335,
         "wires": [
             [
-                "fe3269e3.8c6e3"
+                "15825256.f6a456"
             ]
         ]
     },
     {
-        "id": "24a08a34.9b1b0e",
+        "id": "bbffe67.2418118",
         "type": "inject",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Inject This First",
         "topic": "",
         "payload": "",
@@ -168,14 +169,14 @@
         "y": 336,
         "wires": [
             [
-                "26f4bffe.877578"
+                "7cfb9b13.1a3834"
             ]
         ]
     },
     {
-        "id": "fe3269e3.8c6e3",
+        "id": "15825256.f6a456",
         "type": "worldmap",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "",
         "lat": "",
         "lon": "",
@@ -191,10 +192,10 @@
         "wires": []
     },
     {
-        "id": "bdcb1f84.057df8",
+        "id": "484ccf52.1ab078",
         "type": "ui_text",
-        "z": "920228e3.9f3908",
-        "group": "e315b98.67035c8",
+        "z": "fbc0e24f.4d993",
+        "group": "59099a95.df4bf4",
         "order": 1,
         "width": 0,
         "height": 0,
@@ -202,42 +203,41 @@
         "label": "Heat Wave Situation",
         "format": "{{msg.heatwaveLog}}",
         "layout": "row-left",
-        "x": 1460.5,
-        "y": 377,
+        "x": 1456.5,
+        "y": 466,
         "wires": []
     },
     {
-        "id": "49a80c3a.c4fb84",
+        "id": "5dd478a.1ebb308",
         "type": "python3-function",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Warning Preprocessor",
-        "func": "from datetime import datetime, timedelta\n\nN1 = 1\nN2 = 2\n\ndate_N1_days_ago = datetime.now() - timedelta(days=N1)\ndate_N2_days_ago = datetime.now() - timedelta(days=N2)\ndate_today = datetime.now()\n\nd1 = datetime.now().strftime(\"%Y-%m-%d \");\nd2 = (datetime.now() - timedelta(days=N1)).strftime(\"%Y-%m-%d \");\nd3 = (datetime.now() - timedelta(days=N2)).strftime(\"%Y-%m-%d \");\n\nfor items in msg[\"payload\"] :\n    node.log(items);\n    \n\nnode.log(date_N1_days_ago.strftime(\"%Y-%m-%d %H:%M:%S\"));\nnode.log(date_N2_days_ago.strftime(\"%Y-%m-%d %H:%M:%S\"));\n\n#msg[\"payload\"] = \"Currently there is no heatwave danger!\"\nmsg[\"heatwaveLog\"] = \"Currently there is no heatwave danger!\"\n\nreturn msg",
+        "func": "msg[\"payload\"] = msg[\"warning\"]\n\nreturn msg",
         "outputs": 1,
-        "x": 1080.5,
-        "y": 381,
+        "x": 1099.5,
+        "y": 465,
         "wires": [
             [
-                "bdcb1f84.057df8",
-                "1332d92f.ca442f"
+                "484ccf52.1ab078"
             ]
         ]
     },
     {
-        "id": "cfc39b1e.a410f",
+        "id": "13e006ba.7cc8c9",
         "type": "debug",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "",
         "active": false,
         "console": "false",
         "complete": "false",
-        "x": 782,
-        "y": 138,
+        "x": 800,
+        "y": 139,
         "wires": []
     },
     {
-        "id": "23f3d1b9.826816",
+        "id": "d40ba8af.192a6",
         "type": "python3-function",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "Store on MongoDB",
         "func": "# from modules.library import clean_netatmo_data2\nimport pymongo\nfrom pymongo import MongoClient\nfrom modules.library import insert_mongo\n\ndata = msg['payload']\nhost = 'mongodb'\ndb = 'myDB'\ncollection = 'biotope'\nres = insert_mongo(db, collection, data, host)\n\nreturn msg  ",
         "outputs": 1,
@@ -245,14 +245,14 @@
         "y": 92,
         "wires": [
             [
-                "13b0cb41.4f805d"
+                "227265e6.7b3b9a"
             ]
         ]
     },
     {
-        "id": "3ba5c3b7.cc501c",
+        "id": "a3bdbf3.7369c4",
         "type": "python3-function",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "ReadFromMongo",
         "func": "import pymongo\nfrom pymongo import MongoClient\nfrom modules.library import read_mongo\nimport pandas as pd\n\ndata = msg['payload']\nhost = 'mongodb'\ndb = 'myDB'\ncollection = 'biotope'\nquery={}\nres = read_mongo(db, collection, query , host)\n\nabc = res.to_json(orient='records')\ncol = res.to_json(orient='columns')\n\nmsg['payload'] = abc\nreturn msg",
         "outputs": 1,
@@ -260,48 +260,483 @@
         "y": 378,
         "wires": [
             [
-                "91fd7a1e.22198"
+                "894caebe.79f0a8"
             ]
         ]
     },
     {
-        "id": "1332d92f.ca442f",
+        "id": "90216c1f.6807c",
         "type": "debug",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "",
         "active": true,
         "console": "false",
         "complete": "false",
-        "x": 1100,
-        "y": 538,
+        "x": 1181,
+        "y": 300,
         "wires": []
     },
     {
-        "id": "91fd7a1e.22198",
+        "id": "894caebe.79f0a8",
         "type": "json",
-        "z": "920228e3.9f3908",
+        "z": "fbc0e24f.4d993",
         "name": "",
         "x": 795.5,
         "y": 439,
         "wires": [
             [
-                "1332d92f.ca442f",
-                "49a80c3a.c4fb84"
+                "4bd1626d.049e44",
+                "90216c1f.6807c"
             ]
         ]
     },
     {
-        "id": "e315b98.67035c8",
+        "id": "a6b6bd50.f68d5",
+        "type": "comment",
+        "z": "fbc0e24f.4d993",
+        "name": "Reading From an O-MI Node two times per day",
+        "info": "",
+        "x": 299,
+        "y": 143,
+        "wires": []
+    },
+    {
+        "id": "68f2bef7.986c3",
+        "type": "sparql",
+        "z": "fbc0e24f.4d993",
+        "name": "",
+        "prefix": "",
+        "func": "",
+        "outputs": 1,
+        "x": 1053.5,
+        "y": 727,
+        "wires": [
+            [
+                "44d6141e.c8c534"
+            ]
+        ]
+    },
+    {
+        "id": "9c3c2e0e.556c1",
+        "type": "ui_template",
+        "z": "fbc0e24f.4d993",
+        "group": "bfdf8b5f.62c868",
+        "name": "Table for Displaying List of Sensors",
+        "order": 0,
+        "width": "11",
+        "height": "11",
+        "format": "<style>\ntable {\n    color: #333;\n    font-family: Helvetica, Arial, sans-serif;\n    width: 100%;\n    border-collapse: collapse;\n    border-spacing: 0;\n}\ntd, th {\n    border: 1px solid transparent;\n    /* No more visible border */\n    height: 30px;\n    transition: all 0.3s;\n    /* Simple transition for hover effect */\n}\nth {\n    background: #DFDFDF;\n    /* Darken header a bit */\n    font-weight: bold;\n}\ntd {\n    background: #FAFAFA;\n    text-align: center;\n}\n\n/* Cells in even rows (2,4,6...) are one color */\n\ntr:nth-child(even) td {\n    background: #F1F1F1;\n}\n\n/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */\n\ntr:nth-child(odd) td {\n    background: #FEFEFE;\n}\ntr td:hover {\n    background: #666;\n    color: #FFF;\n}\n\n/* Hover cell effect! */\n</style>\n<style>\n    <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.4.1/css/all.css\" integrity=\"sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz\" crossorigin=\"anonymous\">\n</style>\n\n<script>\n\n(function() {\n    \n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            if (msg) {\n             // Do something when msg arrives\n             scope.node = {\n              name : '',\n             };\n            }\n    \n        });\n     \n    })(scope);\n    \n})();\n</script>\n\n\n<form name=\"myForm\" >\n<h5>Selected Sensor ID: {{node.name}}</h5>\n<table>\n<thead>\n  <tr>\n    <th></th>\n    <th>Sensor ID</th>\n    <th>Sensor Name</th>\n    <th>Average Temperature Day °C</th>\n    <th>Average Temperature Night °C</th> \n  </tr>\n</thead>\n  <tr ng-repeat=\"obj in msg.payload track by $index\">\n    <td>\n    <input type=\"radio\" ng-model=\"node.name\" value=\"{{obj.name}}\"  name=\"data\"  ng-change=\"send({payload:node.name})\"></td>\n    <td>{{ obj._id }}</td>\n    <td>{{ obj.name }}</td>\n    <td>{{ obj.avgDay }}</td>\n    <td>{{ obj.avgNight }}</td>\n  </tr>\n</table>\n </form>\n\n\n\n",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1506.5,
+        "y": 403,
+        "wires": [
+            [
+                "7e7aa449.ff9f7c"
+            ]
+        ]
+    },
+    {
+        "id": "44d6141e.c8c534",
+        "type": "ui_template",
+        "z": "fbc0e24f.4d993",
+        "group": "e73d1092.fe9f08",
+        "name": "Information of Interest - SPARQL Endpoint",
+        "order": 0,
+        "width": "11",
+        "height": "11",
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1553.5,
+        "y": 725,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a344ed8c.377be",
+        "type": "python3-function",
+        "z": "fbc0e24f.4d993",
+        "name": "List of Temprature Sensors",
+        "func": "import pymongo\nfrom pymongo import MongoClient\nfrom modules.library import read_mongo\nimport pandas as pd\n\ndata = msg['payload']\nhost = 'mongodb'\ndb = 'myDB'\ncollection = 'biotope'\nquery={}\nres = read_mongo(db, collection, query , host)\n\nresultFromMongo = res.to_json(orient='records')\n\nsumationDay = 0.0\nsummationNight = 0.0\ncurerntHour = ''\ncountDay = 0 \ncountNight = 0 \n\nobjectList = msg[\"payload\"]\n\n#for items in objectList:\n#    for things in resultFromMongo:\n#        if things[\"name\"] == items[\"name\"]:\n#            if things[\"time\"].split(\":\")[0] == \"13\" or things[\"time\"].split(\":\")[0] == \"14\" or things[\"time\"].split(\":\")[0] == \"15\" or things[\"time\"].split(\":\")[0] == \"16\" or things[\"time\"].split(\":\")[0] == \"17\" or things[\"time\"].split(\":\")[0] == \"06\" or things[\"time\"].split(\":\")[0] == \"07\" or things[\"time\"].split(\":\")[0] == \"08\" or things[\"time\"].split(\":\")[0] == \"09\" or things[\"time\"].split(\":\")[0] == \"10\" or things[\"time\"].split(\":\")[0] == \"11\" or things[\"time\"].split(\":\")[0] == \"12\" :  \n#                summationNight += things[\"temperature\"]\n#                countNight = countNight + 1\n#            elif things[\"time\"].split(\":\")[0] == \"01\" or things[\"time\"].split(\":\")[0] == \"02\" or things[\"time\"].split(\":\")[0] == \"03\" or things[\"time\"].split(\":\")[0] == \"04\" or things[\"time\"].split(\":\")[0] == \"05\" or things[\"time\"].split(\":\")[0] == \"18\" or things[\"time\"].split(\":\")[0] == \"19\" or things[\"time\"].split(\":\")[0] == \"20\" or things[\"time\"].split(\":\")[0] == \"21\" or things[\"time\"].split(\":\")[0] == \"22\" or things[\"time\"].split(\":\")[0] == \"23\" or things[\"time\"].split(\":\")[0] == \"24\" :            \n#                sumationDay += things[\"temperature\"]\n#                countDay = countDay + 1 \n#    \n#    items[\"avgNight\"] = summationNight/countNight\n#    items[\"avgDay\"] = sumationDay/countDay\nfor items in objectList: \n    node.log(items)\n    \nfor things in resultFromMongo: \n    node.log(\"MONGO\")\n    node.log(thins)\n\nmsg[\"payload\"] = objectList\n\nreturn msg",
+        "outputs": 1,
+        "x": 1115,
+        "y": 403,
+        "wires": [
+            [
+                "9c3c2e0e.556c1",
+                "90216c1f.6807c"
+            ]
+        ]
+    },
+    {
+        "id": "4bd1626d.049e44",
+        "type": "python3-function",
+        "z": "fbc0e24f.4d993",
+        "name": "Processing Data",
+        "func": "from datetime import datetime, timedelta\nfrom dateutil.parser import parse\n\nday1 = [{\"series\": [\"D\"], \"data\": [], \"labels\": [\"D\"] }]\nday1[0][\"data\"].append([])\nday2 = [{\"series\": [\"D\"], \"data\": [], \"labels\": [\"D\"] }]\nday2[0][\"data\"].append([])\nday3 = [{\"series\": [\"D\"], \"data\": [], \"labels\": [\"D\"] }]\nday3[0][\"data\"].append([])\naggregatedResults = []\n\nN1 = 1\nN2 = 2\n\ndate_N1_days_ago = datetime.now() - timedelta(days=N1)\ndate_N2_days_ago = datetime.now() - timedelta(days=N2)\ndate_today = datetime.now()\n\nd1 = datetime.now().strftime(\"%Y/%m/%d \");\nd2 = (datetime.now() - timedelta(days=N1)).strftime(\"%Y/%m/%d \");\nd3 = (datetime.now() - timedelta(days=N2)).strftime(\"%Y/%m/%d \");\n\nparsedd1 = parse(d1)\nparsedd2 = parse(d2)\nparsedd3 = parse(d3)\n\n\nfor items in msg[\"payload\"] :\n    parsedMongo = parse(items[\"date\"])\n\n    if  parsedd1 == parsedMongo :\n        day1[0][\"data\"][0].append({\"x\":float(items[\"time\"][:2]) , \"y\":float(items[\"temprature\"]) , \"r\":2 })\n        node.log(\"Day1\")\n    elif parsedd2 == parsedMongo :\n        day2[0][\"data\"][0].append({\"x\":float(items[\"time\"][:2]) , \"y\":float(items[\"temprature\"]) , \"r\":2 })\n        node.log(\"Day2\")\n    elif parsedd3 == parsedMongo :\n        #day3[0][\"data\"][0].append({\"x\":float(items[\"time\"][:2]) , \"y\":float(items[\"temprature\"]) , \"r\":2 })\n        node.log(\"Day3\")\n    \n    \n    #node.log(items);\n    node.log(\"DATE FROM ITEMS\");\n    node.log(items[\"date\"]);\n    node.log(d1);\n    node.log(d2);\n    node.log(d3);\n\n\nnode.log(date_N1_days_ago.strftime(\"%Y-%m-%d %H:%M:%S\"));\nnode.log(date_N2_days_ago.strftime(\"%Y-%m-%d %H:%M:%S\"));\n\n#msg[\"payload\"] = \"Currently there is no heatwave danger!\"\nmsg[\"warning\"] = \"Currently there is no heatwave danger!\"\nmsg[\"aggregatedDay\"] = aggregatedResults\nmsg[\"day1\"] = day1\nmsg[\"day2\"] = day2\nmsg[\"day3\"] = day3\n\nreturn msg",
+        "outputs": 1,
+        "x": 828,
+        "y": 501,
+        "wires": [
+            [
+                "5dd478a.1ebb308",
+                "687ee74f.b10be",
+                "5fee2c80.9a066c",
+                "c9a71905.f78c9",
+                "c051b06.89196d",
+                "e58e214b.1ab9"
+            ]
+        ]
+    },
+    {
+        "id": "85f7a064.39fbe8",
+        "type": "comment",
+        "z": "fbc0e24f.4d993",
+        "name": "Custom Spliting Methods For UI Widgets",
+        "info": "",
+        "x": 1150.5,
+        "y": 359,
+        "wires": []
+    },
+    {
+        "id": "6dfb4946.5888f",
+        "type": "ui_template",
+        "z": "fbc0e24f.4d993",
+        "group": "f2626055.3f9a68",
+        "name": "Today's Record",
+        "order": 0,
+        "width": "11",
+        "height": "11",
+        "format": "",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1754,
+        "y": 620,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "51a7f714.25f818",
+        "type": "template",
+        "z": "fbc0e24f.4d993",
+        "name": "Create the msg.template to use",
+        "field": "template",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<canvas id=\"bubble-chart\" width=\"1\" height=\"1\" ></canvas>\n\n<script>\nnew Chart(document.getElementById(\"bubble-chart\"), {\n    type: 'bubble',\n    data: {\n      labels: \"label\",\n      datasets: [\n        {\n          label: \"Time\",\n          backgroundColor: \"rgba(90, 97, 225, 1.0000)\",\n          borderColor: \"#000\",\n          data: [\n            {{{payload.data1}}}\n\n          ]\n        }\n      ]\n    },\n    options: {\n        legend: {\n            display: true,\n            labels: {\n                fontColor: 'rgb(255, 99, 132)'\n            }\n        },\n    title: {\n        display: true,\n        text: '{{{payload.title}}}'\n      }, scales: {\n        yAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"yAxes - Temperature (°C)\"\n          }\n        }],\n        xAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"xAxes - Time (Hours)\"\n          }\n        }]\n      }\n    }\n});\n\n</script>\n",
+        "x": 1512,
+        "y": 620,
+        "wires": [
+            [
+                "6dfb4946.5888f"
+            ]
+        ]
+    },
+    {
+        "id": "687ee74f.b10be",
+        "type": "function",
+        "z": "fbc0e24f.4d993",
+        "name": "Data for Day 1",
+        "func": "objectsList = []\nobjectsList = msg[\"day1\"][0][\"data\"][0]\nvar data1 = ''\n\nfor( i = 0 ; i <objectsList.length ; i++  )\n{\n    data1 += \"{x: \"+ objectsList[i].x +\", y: \"+ objectsList[i].y +\", r: \"+ 2 +\"},\";\n    node.log(objectsList[i].x)\n}\n\ntitle = 'Time(H) against Temperature(°C) Record for Today';\nlegend1 = \"Legend\";\n\n\n// Now we build msg.payload\nmsg.payload = { \"title\"   : title,\n                \"legend1\" : legend1,\n                \"data1\"   : data1,\n    \n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1081.5,
+        "y": 621,
+        "wires": [
+            [
+                "51a7f714.25f818"
+            ]
+        ]
+    },
+    {
+        "id": "3a79848e.ef9ca4",
+        "type": "debug",
+        "z": "fbc0e24f.4d993",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "payload",
+        "x": 806.5,
+        "y": 687,
+        "wires": []
+    },
+    {
+        "id": "5fee2c80.9a066c",
+        "type": "function",
+        "z": "fbc0e24f.4d993",
+        "name": "",
+        "func": "msg.payload = msg[\"day1\"][0][\"data\"][0]\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 807.5,
+        "y": 612,
+        "wires": [
+            [
+                "3a79848e.ef9ca4"
+            ]
+        ]
+    },
+    {
+        "id": "c9a71905.f78c9",
+        "type": "function",
+        "z": "fbc0e24f.4d993",
+        "name": "Data For Day 2",
+        "func": "objectsList = []\nobjectsList = msg[\"day2\"][0][\"data\"][0]\nvar data1 = ''\n\nfor( i = 0 ; i <objectsList.length ; i++  )\n{\n    data1 += \"{x: \"+ objectsList[i].x +\", y: \"+ objectsList[i].y +\", r: \"+ 2 +\"},\";\n    node.log(objectsList[i].x)\n}\n\ntitle = 'Time(H) against Temperature(°C) Record for Yesterday';\nlegend1 = \"Legend\";\n\n\n// Now we build msg.payload\nmsg.payload = { \"title\"   : title,\n                \"legend1\" : legend1,\n                \"data1\"   : data1,\n    \n};\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1077.5,
+        "y": 573,
+        "wires": [
+            [
+                "ba365c74.2e0c78"
+            ]
+        ]
+    },
+    {
+        "id": "c051b06.89196d",
+        "type": "function",
+        "z": "fbc0e24f.4d993",
+        "name": "Data for Day 3",
+        "func": "objectsList = []\nobjectsList = msg[\"day3\"][0][\"data\"][0]\nvar data1 = ''\n\nfor( i = 0 ; i <objectsList.length ; i++  )\n{\n    data1 += \"{x: \"+ objectsList[i].x +\", y: \"+ objectsList[i].y +\", r: \"+ 2 +\"},\";\n    node.log(objectsList[i].x)\n}\n\ntitle = 'Time(H) against Temperature(°C) Record for Day Before Yesterday';\nlegend1 = \"Legend\";\n\n\n// Now we build msg.payload\nmsg.payload = { \"title\"   : title,\n                \"legend1\" : legend1,\n                \"data1\"   : data1,\n    \n};\n\nreturn msg;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1076.5,
+        "y": 525,
+        "wires": [
+            [
+                "91640694.f19aa8"
+            ]
+        ]
+    },
+    {
+        "id": "ba365c74.2e0c78",
+        "type": "template",
+        "z": "fbc0e24f.4d993",
+        "name": "Create the msg.template to use",
+        "field": "template",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<canvas id=\"bubble-chart2\" width=\"1\" height=\"1\" ></canvas>\n\n<script>\nnew Chart(document.getElementById(\"bubble-chart2\"), {\n    type: 'bubble',\n    data: {\n      labels: \"label\",\n      datasets: [\n        {\n          label: \"Time\",\n          backgroundColor: \"rgba(114, 206, 109, 1.0000)\",\n          borderColor: \"#000\",\n          data: [\n            {{{payload.data1}}}\n\n          ]\n        }\n      ]\n    },\n    options: {\n        legend: {\n            display: true,\n            labels: {\n                fontColor: 'rgb(255, 99, 132)'\n            }\n        },\n    title: {\n        display: true,\n        text: '{{{payload.title}}}'\n      }, scales: {\n        yAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"yAxes - Temperature (°C)\"\n          }\n        }],\n        xAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"xAxes - Time (Hours)\"\n          }\n        }]\n      }\n    }\n});\n\n</script>\n",
+        "x": 1509,
+        "y": 572,
+        "wires": [
+            [
+                "3e3bfdb0.366e9a"
+            ]
+        ]
+    },
+    {
+        "id": "91640694.f19aa8",
+        "type": "template",
+        "z": "fbc0e24f.4d993",
+        "name": "Create the msg.template to use",
+        "field": "template",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<canvas id=\"bubble-chart3\" width=\"1\" height=\"1\" ></canvas>\n\n<script>\nnew Chart(document.getElementById(\"bubble-chart3\"), {\n    type: 'bubble',\n    data: {\n      labels: \"label\",\n      datasets: [\n        {\n          label: \"Time\",\n          backgroundColor: \"rgba(154, 119, 196, 1.0000)\",\n          borderColor: \"#000\",\n          data: [\n            {{{payload.data1}}}\n\n          ]\n        }\n      ]\n    },\n    options: {\n        legend: {\n            display: true,\n            labels: {\n                fontColor: 'rgb(255, 99, 132)'\n            }\n        },\n    title: {\n        display: true,\n        text: '{{{payload.title}}}'\n      }, scales: {\n        yAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"yAxes - Temperature (°C)\"\n          }\n        }],\n        xAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"xAxes - Time (Hours)\"\n          }\n        }]\n      }\n    }\n});\n\n</script>\n",
+        "x": 1509,
+        "y": 525,
+        "wires": [
+            [
+                "e6937f74.2ddca8"
+            ]
+        ]
+    },
+    {
+        "id": "3e3bfdb0.366e9a",
+        "type": "ui_template",
+        "z": "fbc0e24f.4d993",
+        "group": "f49c52cd.f1322",
+        "name": "Yesterday's Record",
+        "order": 2,
+        "width": "10",
+        "height": "11",
+        "format": "",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1760.5,
+        "y": 572,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e6937f74.2ddca8",
+        "type": "ui_template",
+        "z": "fbc0e24f.4d993",
+        "group": "49fcaf64.183928",
+        "name": "Day Before Yesterday's Record",
+        "order": 2,
+        "width": "11",
+        "height": "11",
+        "format": "",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1797.5,
+        "y": 525,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c53238ab.d732a",
+        "type": "template",
+        "z": "fbc0e24f.4d993",
+        "name": "Create the msg.template to use",
+        "field": "template",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<canvas id=\"bubble-chart4\" width=\"1\" height=\"1\" ></canvas>\n\n<script>\nnew Chart(document.getElementById(\"bubble-chart4\"), {\n    type: 'bubble',\n    data: {\n      labels: \"label\",\n      datasets: [\n        {\n          label: \"d\",\n          backgroundColor: \"rgba(90, 97, 225, 1.0000)\",\n          borderColor: \"#000\",\n          data: [\n            {{{payload.data1}}}\n\n          ]\n        },\n        {\n          label: \"d2\",\n          backgroundColor: \"rgba(114, 206, 109, 1.0000)\",\n          borderColor: \"#000\",\n          data: [\n            {{{payload.data2}}}\n\n          ]\n        },\n        {\n          label: \"d3\",\n          backgroundColor: \"rgba(154, 119, 196, 1.0000)\",\n          borderColor: \"#000\",\n          data: [\n            {{{payload.data3}}}\n\n          ]\n        },\n      ]\n    },\n    options: {\n        legend: {\n            display: true,\n            labels: {\n                fontColor: 'rgb(255, 99, 132)'\n            }\n        },\n    title: {\n        display: true,\n        text: '{{{payload.title}}}'\n      }, scales: {\n        yAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"yAxes - Temperature (°C)\"\n          }\n        }],\n        xAxes: [{ \n          scaleLabel: {\n            display: true,\n            labelString: \"xAxes - Time (Hours)\"\n          }\n        }]\n      }\n    }\n});\n\n</script>\n",
+        "x": 1511,
+        "y": 671,
+        "wires": [
+            [
+                "38cd42f.02c583e"
+            ]
+        ]
+    },
+    {
+        "id": "38cd42f.02c583e",
+        "type": "ui_template",
+        "z": "fbc0e24f.4d993",
+        "group": "ee0d519a.9454e8",
+        "name": "Aggregated View",
+        "order": 1,
+        "width": "11",
+        "height": "11",
+        "format": "<div ng-bind-html=\"msg.payload\"></div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1766.5,
+        "y": 670,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e58e214b.1ab9",
+        "type": "function",
+        "z": "fbc0e24f.4d993",
+        "name": "3 Days Aggregated Record",
+        "func": "\nN1 = 1\nN2 = 2\n\n\nvar data1 = ''\nvar data2 = ''\nvar data3 = ''\n\nobjectsList1 = msg[\"day1\"][0][\"data\"][0]\nobjectsList2 = msg[\"day2\"][0][\"data\"][0]\nobjectsList3 = msg[\"day3\"][0][\"data\"][0]\n\nlegend1 = \"Today\"\nlegend2 = \"Yesterday\"\nlegend3 = \"Day Before Yesterday\"\n\nd1 = \"Today\"\nd2 = \"Yesterday\"\nd3 = \"Day Before Yesterday\"\n\nfunction getListForDisplay(objectsList)\n{\n    var data = ''\n\n    for( i = 0 ; i <objectsList.length ; i++  )\n    {\n        data += \"{x: \"+ objectsList[i].x +\", y: \"+ objectsList[i].y +\", r: \"+ 2 +\"},\";\n        node.log(objectsList[i].x)\n    }\n    \n    return data;\n}\n\n\ndata1 = getListForDisplay(objectsList1)\ndata2 = getListForDisplay(objectsList2)\ndata3 = getListForDisplay(objectsList3)\n\ntitle = \"Three Days Aggregated Temperature vs Days Record\"\n\nmsg.payload = { \"title\"   : title,\n                \"legend1\" : legend1,\n                \"data1\"   : data1,\n                \"dateToday\" : d1,\n                \"legend2\" : legend2,\n                \"data2\"   : data2,\n                \"dateYesterday\" : d2,\n                \"legend3\" : legend3,\n                \"data3\"   : data3,\n                \"dateDayBefore\" : d3\n                \n};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1121.5,
+        "y": 671,
+        "wires": [
+            [
+                "c53238ab.d732a"
+            ]
+        ]
+    },
+    {
+        "id": "7e7aa449.ff9f7c",
+        "type": "function",
+        "z": "fbc0e24f.4d993",
+        "name": "searchRoadIssues",
+        "func": "\nif(typeof msg.payload == \"string\")\n{\n    msg.payload = msg.payload;\n    msg.payload = { command:{search:msg.payload} };\n\n}else\n{\n    msg.payload = \"\";\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1474,
+        "y": 361,
+        "wires": [
+            [
+                "15825256.f6a456"
+            ]
+        ]
+    },
+    {
+        "id": "59099a95.df4bf4",
         "type": "ui_group",
         "z": "",
-        "name": "Marked Temperature Sensors in Lyonw",
-        "tab": "e9d5159d.cb9e7",
+        "name": "Marked Temperature Sensors in Lyon",
+        "tab": "a773f8de.d0456",
+        "order": 4,
         "disp": true,
-        "width": "40",
+        "width": "32",
         "collapse": false
     },
     {
-        "id": "e9d5159d.cb9e7",
+        "id": "bfdf8b5f.62c868",
+        "type": "ui_group",
+        "z": "",
+        "name": "List of Sensors",
+        "tab": "a773f8de.d0456",
+        "order": 2,
+        "disp": true,
+        "width": "11",
+        "collapse": false
+    },
+    {
+        "id": "e73d1092.fe9f08",
+        "type": "ui_group",
+        "z": "",
+        "name": "Ionformation of Interest",
+        "tab": "a773f8de.d0456",
+        "order": 3,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "f2626055.3f9a68",
+        "type": "ui_group",
+        "z": "",
+        "name": "Today's Record",
+        "tab": "a773f8de.d0456",
+        "order": 5,
+        "disp": true,
+        "width": "11",
+        "collapse": false
+    },
+    {
+        "id": "f49c52cd.f1322",
+        "type": "ui_group",
+        "z": "",
+        "name": "Yesterday's Record",
+        "tab": "a773f8de.d0456",
+        "order": 6,
+        "disp": true,
+        "width": "10",
+        "collapse": false
+    },
+    {
+        "id": "49fcaf64.183928",
+        "type": "ui_group",
+        "z": "",
+        "name": "Day Before Yesterday's Record",
+        "tab": "a773f8de.d0456",
+        "order": 7,
+        "disp": true,
+        "width": "11",
+        "collapse": false
+    },
+    {
+        "id": "ee0d519a.9454e8",
+        "type": "ui_group",
+        "z": "",
+        "name": "Aggregated View",
+        "tab": "a773f8de.d0456",
+        "order": 1,
+        "disp": true,
+        "width": "11",
+        "collapse": false
+    },
+    {
+        "id": "a773f8de.d0456",
         "type": "ui_tab",
         "z": "",
         "name": "Lyon Heat Wave Mitigation",
