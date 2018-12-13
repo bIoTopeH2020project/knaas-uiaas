@@ -35,7 +35,7 @@ RUN npm install prokolyvakis/node-red-contrib-sparql
 RUN npm install node-red-dashboard
 
 # web-worldmap
-RUN npm install node-red-contrib-web-worldmap
+RUN npm install dceejay/RedMap
 
 # open weather map
 RUN npm install node-red-node-openweathermap
@@ -65,7 +65,7 @@ RUN apt-get -y install python-scipy python-matplotlib python-pandas python-sympy
 #RUN apt-get -y install ipython ipython-notebook
 
 # install Scikit-learn (Data Mining for Python)
-RUN pip install -U scikit-learn
+#RUN pip install -U scikit-learn
 
 # install YAML (python YAML support)
 RUN apt-get -y install python-yaml
