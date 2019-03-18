@@ -1,8 +1,23 @@
 [
     {
-        "id": "4083394.ef46f48",
-        "type": "tab",
-        "label": "5_Lyon_Heat_Wave_UIaaS"
+        "id": "c7614f54.36c1d8",
+        "type": "inject",
+        "z": "4083394.ef46f48",
+        "name": "Execute UIaaS Request Morning",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "00 08 * * *",
+        "once": false,
+        "x": 172,
+        "y": 187.88333129882812,
+        "wires": [
+            [
+                "9f44ea70.5b7618",
+                "ea2d404.56be24"
+            ]
+        ]
     },
     {
         "id": "da02cfc4.f0d458",
@@ -76,26 +91,6 @@
                 "c65ed955.2da148",
                 "b8bb21.937ea4e",
                 "d95cb220.35b74"
-            ]
-        ]
-    },
-    {
-        "id": "c7614f54.36c1d8",
-        "type": "inject",
-        "z": "4083394.ef46f48",
-        "name": "Execute UIaaS Request Morning",
-        "topic": "",
-        "payload": "",
-        "payloadType": "date",
-        "repeat": "",
-        "crontab": "00 08 * * *",
-        "once": false,
-        "x": 172,
-        "y": 187.88333129882812,
-        "wires": [
-            [
-                "9f44ea70.5b7618",
-                "ea2d404.56be24"
             ]
         ]
     },
