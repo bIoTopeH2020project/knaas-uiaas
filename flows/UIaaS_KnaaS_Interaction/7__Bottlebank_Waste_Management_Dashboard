@@ -1,13 +1,13 @@
 [
     {
-        "id": "fcb21c88.a58e5",
+        "id": "c1359a77.ac5478",
         "type": "tab",
         "label": "7_Bottlebank_Waste_Management_Dashboard"
     },
     {
-        "id": "7a125409.4af44c",
+        "id": "772e75a5.8f0c8c",
         "type": "inject",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "",
         "topic": "",
         "payload": "",
@@ -19,16 +19,16 @@
         "y": 243.3333282470703,
         "wires": [
             [
-                "efb7a329.82252",
-                "a8ab54b2.7afd3",
-                "cd89faa4.e69318"
+                "6587da05.fea524",
+                "ae16169b.f4af18",
+                "e0df0d09.9ddc8"
             ]
         ]
     },
     {
-        "id": "efb7a329.82252",
+        "id": "6587da05.fea524",
         "type": "omiNodeV9",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "BottleBank O-MI Node",
         "path_InfoItem": "https://biotope-omi.alpha.grandlyon.com/Objects/Organization:SigrenEa-V1.1.0",
         "token": "",
@@ -48,14 +48,14 @@
         "y": 295,
         "wires": [
             [
-                "7246ecf1.60d70c"
+                "bb63c1b0.0b41f"
             ]
         ]
     },
     {
-        "id": "7246ecf1.60d70c",
+        "id": "bb63c1b0.0b41f",
         "type": "xml",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "BottleBank O-DF structure to JSON",
         "attr": "",
         "chr": "",
@@ -63,33 +63,34 @@
         "y": 294,
         "wires": [
             [
-                "c763e7e2.b311c"
+                "593126b6.fa7458"
             ]
         ]
     },
     {
-        "id": "c763e7e2.b311c",
+        "id": "593126b6.fa7458",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Extract response from BottleBank O-MI Respnse",
-        "func": "#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nimport copy\n\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\nlistOfBottleBankItems = []\nbottleBankList = availableBB = []\nbottleBankProperty = bottleBankName = bottleBankMaxCapacity = bottleBankGlass = bottleBankWastePoint = bottleBankAvgFillingRatePerDay = bottleBankFillingLimit = None \nlongitude = latitude = name = statusBB = identifier = None \navgMax = avgMin = 0.0 \ntemp = [] \n\nif response == \"200\":\n    node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n    bottleBankObject = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0][\"Object\"];\n    \n    for items in bottleBankObject:\n        if items[\"$\"][\"type\"] == \"ssn:Deployment\" :\n            bottleBankList = items[\"Object\"] \n        elif items[\"$\"] == \"org:Site\" :\n            siteMetaData = items\n        \n\n    for nodes in bottleBankList:\n        if (\"Object\" in nodes) and (\"$\" in nodes): \n            if nodes[\"$\"][\"type\"]: \n                node.log(\"From the communcation device\")\n                nodeObject = nodes[\"Object\"][0][\"Object\"][0][\"Object\"]\n        \n        for things in nodeObject:\n            if (\"$\" in things) and (\"InfoItem\" in things) :\n                if things[\"$\"][\"type\"] == \"ssn:Property\":\n                    bottleBankProperty = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] == \"SWM:MaxCapacity\":\n                    bottleBankMaxCapacity = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] ==  \"SWM:Glass\":\n                    bottleBankGlass = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] ==  \"SWM:WastePoint\":\n                    for coords in  things[\"InfoItem\"]:\n                        if coords[\"$\"][\"name\"] == \"geo:lat\":\n                            latitude = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"geo:long\":\n                            longitude = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"schema:name\":\n                            name = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"schema:identifier\":\n                            identifier = coords[\"value\"][0][\"_\"]\n                        \n                elif things['$'][\"type\"] ==  \"SWM:AvgFillingRatePerDay\":\n                    bottleBankAvgFillingRatePerDay = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] == \"SWM:FillingLimit\":\n                    bottleBankFillingLimit = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n          \n        if bottleBankAvgFillingRatePerDay == 0:\n            statusBB == \"empty\"\n        if bottleBankAvgFillingRatePerDay == 100:\n            statusBB == \"full\"\n        if bottleBankAvgFillingRatePerDay == 50:\n            statusBB == \"half\"\n        if bottleBankAvgFillingRatePerDay > 0 and bottleBankAvgFillingRatePerDay < 50:\n            statusBB = \"less than half\"\n        if bottleBankAvgFillingRatePerDay > 50 and bottleBankAvgFillingRatePerDay < 100:\n            statusBB == \"more than half\"\n         \n        listOfBottleBankItems.append({\"Property\": bottleBankProperty, \"MaximumCapacity\": bottleBankMaxCapacity, \"Glass\": bottleBankGlass, \"AvgFillingRatePerDay\": bottleBankAvgFillingRatePerDay, \"FillingLimit\": bottleBankFillingLimit, \"lat\": latitude, \"lon\": longitude, \"name\": name, \"identifier\": identifier, \"status\": statusBB }) \n        availableBB.append({\"Property\": bottleBankProperty, \"MaximumCapacity\": bottleBankMaxCapacity, \"Glass\": bottleBankGlass, \"AvgFillingRatePerDay\": bottleBankAvgFillingRatePerDay, \"FillingLimit\": bottleBankFillingLimit, \"lat\": latitude, \"lon\": longitude, \"name\": name, \"identifier\": identifier }) \n\n        if( avgMax < float(bottleBankAvgFillingRatePerDay) ):\n            avgMax = float(bottleBankAvgFillingRatePerDay)\n        \n        if( avgMin > float(bottleBankAvgFillingRatePerDay) ):\n            avgMin = float(bottleBankAvgFillingRatePerDay)\n        \n        node.log(bottleBankAvgFillingRatePerDay);\n\n        bottleBankProperty = bottleBankName = bottleBankMaxCapacity = bottleBankGlass = bottleBankWastePoint = bottleBankAvgFillingRatePerDay = bottleBankFillingLimit = None \n        longitude = latitude = name = statusBB = identifier = None \n\n \nelse:\n    node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\n\nmsg[\"payload\"] = listOfBottleBankItems\nmsg[\"centerAvg\"] = int((avgMax - avgMin)/2)\n\n#msg[\"payload\"] = coords\nreturn msg",
+        "func": "#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nimport copy\n\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\nlistOfBottleBankItems = []\nbottleBankList = availableBB = []\nbottleBankProperty = bottleBankName = bottleBankMaxCapacity = bottleBankGlass = bottleBankWastePoint = bottleBankAvgFillingRatePerDay = bottleBankFillingLimit = None \nlongitude = latitude = name = statusBB = identifier = None \navgMax = avgMin = 0.0 \ntemp = [] \n\nif response == \"200\":\n    node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n    bottleBankObject = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0][\"Object\"];\n    \n    for items in bottleBankObject:\n        if items[\"$\"][\"type\"] == \"ssn:Deployment\" :\n            bottleBankList = items[\"Object\"] \n        elif items[\"$\"] == \"org:Site\" :\n            siteMetaData = items\n        \n\n    for nodes in bottleBankList:\n        if (\"Object\" in nodes) and (\"$\" in nodes): \n            if nodes[\"$\"][\"type\"]: \n                node.log(\"From the communcation device\")\n                nodeObject = nodes[\"Object\"][0][\"Object\"][0][\"Object\"]\n        \n        for things in nodeObject:\n            if (\"$\" in things) and (\"InfoItem\" in things) :\n                if things[\"$\"][\"type\"] == \"ssn:Property\":\n                    bottleBankProperty = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] == \"SWM:MaxCapacity\":\n                    bottleBankMaxCapacity = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] ==  \"SWM:Glass\":\n                    bottleBankGlass = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] ==  \"SWM:WastePoint\":\n                    for coords in  things[\"InfoItem\"]:\n                        if coords[\"$\"][\"name\"] == \"geo:lat\":\n                            latitude = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"geo:long\":\n                            longitude = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"schema:name\":\n                            name = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"schema:identifier\":\n                            identifier = coords[\"value\"][0][\"_\"]\n                        \n                elif things['$'][\"type\"] ==  \"SWM:AvgFillingRatePerDay\":\n                    bottleBankAvgFillingRatePerDay = float(things[\"InfoItem\"][0][\"value\"][0][\"_\"])\n                elif things['$'][\"type\"] == \"SWM:FillingLimit\":\n                    bottleBankFillingLimit = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n          \n        if bottleBankAvgFillingRatePerDay == 0:\n            statusBB = 0\n        if bottleBankAvgFillingRatePerDay == 100:\n            statusBB = 4\n        if bottleBankAvgFillingRatePerDay == 50:\n            statusBB = 2\n        if bottleBankAvgFillingRatePerDay > 0 and bottleBankAvgFillingRatePerDay < 50:\n            statusBB = 1\n        if bottleBankAvgFillingRatePerDay > 50 and bottleBankAvgFillingRatePerDay < 100:\n            statusBB = 3\n         \n        listOfBottleBankItems.append({\"Property\": bottleBankProperty, \"MaximumCapacity\": bottleBankMaxCapacity, \"Glass\": bottleBankGlass, \"AvgFillingRatePerDay\": bottleBankAvgFillingRatePerDay, \"FillingLimit\": bottleBankFillingLimit, \"lat\": latitude, \"lon\": longitude, \"name\": name, \"identifier\": identifier, \"status\": statusBB }) \n        availableBB.append({\"Property\": bottleBankProperty, \"MaximumCapacity\": bottleBankMaxCapacity, \"Glass\": bottleBankGlass, \"AvgFillingRatePerDay\": bottleBankAvgFillingRatePerDay, \"FillingLimit\": bottleBankFillingLimit, \"lat\": latitude, \"lon\": longitude, \"name\": name, \"identifier\": identifier }) \n\n        if( avgMax < float(bottleBankAvgFillingRatePerDay) ):\n            avgMax = float(bottleBankAvgFillingRatePerDay)\n        \n        if( avgMin > float(bottleBankAvgFillingRatePerDay) ):\n            avgMin = float(bottleBankAvgFillingRatePerDay)\n        \n        node.log(bottleBankAvgFillingRatePerDay);\n\n        bottleBankProperty = bottleBankName = bottleBankMaxCapacity = bottleBankGlass = bottleBankWastePoint = bottleBankAvgFillingRatePerDay = bottleBankFillingLimit = None \n        longitude = latitude = name = statusBB = identifier = None \n\n \nelse:\n    node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\n\nmsg[\"payload\"] = listOfBottleBankItems\nmsg[\"centerAvg\"] = int((avgMax - avgMin)/2)\n\n#msg[\"payload\"] = coords\nreturn msg",
         "outputs": 1,
         "x": 619.1112518310547,
         "y": 343.8888969421387,
         "wires": [
             [
-                "fa9e9608.bdb61",
-                "738d7467.2205cc",
-                "c3a06c45.cf348",
-                "a46962bd.80aa7",
-                "8e026deb.5ad19"
+                "37196a20.7b282e",
+                "84d4e8d4.9acbc8",
+                "b79126da.453848",
+                "57488cb9.bb73f4",
+                "8accc2fc.1b3a38",
+                "ceb40439.11237"
             ]
         ]
     },
     {
-        "id": "cc0ea109.712d5",
+        "id": "f334db48.b1801",
         "type": "worldmap",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "",
         "lat": "",
         "lon": "",
@@ -101,29 +102,29 @@
         "layers": "show",
         "panit": "false",
         "path": "",
-        "x": 1305.111083984375,
-        "y": 183,
+        "x": 2179,
+        "y": 180,
         "wires": []
     },
     {
-        "id": "fa9e9608.bdb61",
+        "id": "37196a20.7b282e",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "parseForTheWorldMap",
         "func": "\nreturn msg",
         "outputs": 1,
-        "x": 1059.3333129882812,
-        "y": 300.11114501953125,
+        "x": 1933.2222290039062,
+        "y": 297.11114501953125,
         "wires": [
             [
-                "cc0ea109.712d5"
+                "f334db48.b1801"
             ]
         ]
     },
     {
-        "id": "a8ab54b2.7afd3",
+        "id": "ae16169b.f4af18",
         "type": "function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "move and zoom",
         "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:61.0,lon:23.0,zoom:3} };\nreturn msg;",
         "outputs": 1,
@@ -132,14 +133,14 @@
         "y": 187.6666522026062,
         "wires": [
             [
-                "cc0ea109.712d5"
+                "f334db48.b1801"
             ]
         ]
     },
     {
-        "id": "acff0001.518698",
+        "id": "85ba40ad.8fc53",
         "type": "inject",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Inject This First",
         "topic": "",
         "payload": "",
@@ -151,72 +152,75 @@
         "y": 187.55560302734375,
         "wires": [
             [
-                "a8ab54b2.7afd3"
+                "ae16169b.f4af18"
             ]
         ]
     },
     {
-        "id": "738d7467.2205cc",
+        "id": "84d4e8d4.9acbc8",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "List Extraction for Most Used Bottlebanks",
-        "func": "centerMsg = msg[\"centerAvg\"]\nlistOfBottleBankItems = []\n\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) > centerMsg:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nmsg[\"mostUsedName\"] = True\nmsg[\"mostUsedAvailability\"] = True\nmsg[\"mostUsedStatus\"] = True\n\nreturn msg",
+        "func": "centerMsg = msg[\"centerAvg\"]\nlistOfBottleBankItems = []\n\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) > centerMsg:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nmsg[\"mostUsedName\"] = True\nmsg[\"mostUsedAvailability\"] = True\nmsg[\"mostUsedStatus\"] = True\n\nmsg[\"default\"] = \"\"\n\nreturn msg",
         "outputs": 1,
-        "x": 1108.666748046875,
+        "x": 1021.666748046875,
         "y": 427.66668701171875,
         "wires": [
             [
-                "9d4f1c75.4b3878",
-                "6d8b7080.1f552"
+                "ac8b69a6.0f9a2",
+                "1b3d026e.09e0e6"
             ]
         ]
     },
     {
-        "id": "c3a06c45.cf348",
+        "id": "b79126da.453848",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "List Extraction for Available Bottlebanks",
-        "func": "msg[\"allUsedName\"] = True\nmsg[\"alltUsedAvailability\"] = True\nmsg[\"allUsedStatus\"] = True\n\nreturn msg",
+        "func": "msg[\"allUsedName\"] = True\nmsg[\"alltUsedAvailability\"] = True\nmsg[\"allUsedStatus\"] = True\n\nmsg[\"default\"] = \"\"\nreturn msg",
         "outputs": 1,
-        "x": 1105.0001220703125,
+        "x": 1018.0001220703125,
         "y": 551,
         "wires": [
             [
-                "aaf4ea49.094d5"
+                "d80595c7.428f9"
             ]
         ]
     },
     {
-        "id": "9d4f1c75.4b3878",
+        "id": "9585ee59.cf4a8",
         "type": "ui_template",
-        "z": "fcb21c88.a58e5",
-        "group": "22d8300d.54b3d",
+        "z": "c1359a77.ac5478",
+        "group": "90c3b622.1c061",
         "name": "Most Used Bottle Banks",
         "order": 0,
         "width": "12",
         "height": "10",
-        "format": "<style>\ntable {\n    color: #333;\n    font-family: Helvetica, Arial, sans-serif;\n    width: 100%;\n    border-collapse: collapse;\n    border-spacing: 0;\n}\ntd, th {\n    border: 1px solid transparent;\n    /* No more visible border */\n    height: 30px;\n    transition: all 0.3s;\n    /* Simple transition for hover effect */\n}\nth {\n    background: #DFDFDF;\n    /* Darken header a bit */\n    font-weight: bold;\n}\ntd {\n    background: #FAFAFA;\n    text-align: center;\n}\n\n/* Cells in even rows (2,4,6...) are one color */\n\ntr:nth-child(even) td {\n    background: #F1F1F1;\n}\n\n/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */\n\ntr:nth-child(odd) td {\n    background: #FEFEFE;\n}\ntr td:hover {\n    background: #666;\n    color: #FFF;\n}\n\n/* Hover cell effect! */\n</style>\n<style>\n    <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.4.1/css/all.css\" integrity=\"sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz\" crossorigin=\"anonymous\">\n</style>\n\n<script>\n\n(function() {\n    \n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            if (msg) {\n             // Do something when msg arrives\n             scope.node = {\n              name : '',\n             };\n            }\n    \n        });\n     \n    })(scope);\n    \n})();\n</script>\n\n\n<form name=\"bbCitizenForm\" >\n<!-- <h5>Selected Road ID: {{node.name}}</h5> -->\n<table>\n<thead>\n  <tr>\n    <th></th>\n    <th><a ng-click=\"send({payload:['sort','name', msg.payload, 'mostUsedName']})\">{{msg.mostUsedName ? 'Name &#8593;' : 'Name &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','AvgFillingRatePerDay', msg.payload, 'mostUsedAvailability']})\">{{msg.mostUsedAvailability ? 'Availability &#8593;' : 'Availability &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','status', msg.payload, 'mostUsedStatus']})\">{{msg.mostUsedStatus ? 'Status &#8593;' : 'Status &darr;' }}</a></th>\n  </tr>\n</thead>\n  <tr ng-repeat=\"obj in msg.payload track by $index\">\n    <td>\n    <input type=\"radio\" ng-model=\"node.name\" value=\"{{obj.name}}\"  name=\"data\"  ng-change=\"send({payload:['radio', obj.name, obj ]})\"></td>\n    <td>{{ obj.name }}</td>\n    <td>{{ obj.AvgFillingRatePerDay }}</td>\n    <td></td>\n  </tr>\n</table>\n </form>\n\n\n\n",
+        "format": "<style>\ntable {\n    color: #333;\n    font-family: Helvetica, Arial, sans-serif;\n    width: 100%;\n    border-collapse: collapse;\n    border-spacing: 0;\n}\ntd, th {\n    border: 1px solid transparent;\n    /* No more visible border */\n    height: 30px;\n    transition: all 0.3s;\n    /* Simple transition for hover effect */\n}\nth {\n    background: #DFDFDF;\n    /* Darken header a bit */\n    font-weight: bold;\n}\ntd {\n    background: #FAFAFA;\n    text-align: center;\n}\n\n/* Cells in even rows (2,4,6...) are one color */\n\ntr:nth-child(even) td {\n    background: #F1F1F1;\n}\n\n/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */\n\ntr:nth-child(odd) td {\n    background: #FEFEFE;\n}\ntr td:hover {\n    background: #666;\n    color: #FFF;\n}\n\n.status1{\n    color:#c0392b;\n}\n.status2{\n    color:#9fa8da;\n}\n.status3{\n    color:#3f51b5;\n}\n.status4{\n    color:#1a237e;\n}\n.status5{\n    color:#27ae60;\n}\n\n.tooltip {\n  position: relative;\n  display: inline-block;\n  \n}\n\n.tooltip .tooltiptext {\n  visibility: hidden;\n  width: 120px;\n  background-color: black;\n  color: #fff;\n  text-align: center;\n  border-radius: 6px;\n  padding: 5px 0;\n\n  /* Position the tooltip */\n  position: absolute;\n  z-index: 1000;\n}\n\n.tooltip:hover .tooltiptext {\n  visibility: visible;\n}\n\n#wrapper {\n    display: table;\n    table-layout: fixed;\n    width:100%;\n    /* height:100px; */\n}\n#wrapper div {\n    display: table-cell;\n    /* height:100px; */\n}\n\ndiv.item {\n    vertical-align: top;\n    display: inline-block;\n    text-align: center;\n    width: 20%;\n    min-height: 8px;\n}\n\n/* Hover cell effect! */\n</style>\n<style>\n    <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.4.1/css/all.css\" integrity=\"sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz\" crossorigin=\"anonymous\">\n</style>\n\n<script>\n\n(function() {\n    \n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            if (msg) {\n             // Do something when msg arrives\n             scope.node = {\n              name : msg.default,\n             };\n            }\n    \n        });\n     \n    })(scope);\n    \n})();\n</script>\n  <div id=\"wrapper\">\n     <div id=\"one\">\n         <div class=\"item\">\n            <i class=\"fa fa-circle status1\" aria-hidden=\"true\"></i>\n            <span class=\"caption\">Empty</span>\n        </div>\n     </div>\n     <div id=\"two\">\n         <div class=\"item\">\n            <i class=\"fa fa-circle status2\" aria-hidden=\"true\"></i>\n            <span class=\"caption\">Less then Half</span>\n        </div>\n     </div>\n     <div id=\"three\">\n        <div class=\"item\">\n            <i class=\"fa fa-circle status3\" aria-hidden=\"true\"></i>\n            <span class=\"caption\">Half</span>\n        </div>\n     </div>\n     <div id=\"four\">\n        <div class=\"item\">\n            <i class=\"fa fa-circle status4\" aria-hidden=\"true\"></i>\n            <span class=\"caption\">More then Half</span>\n        </div>\n     </div>\n     <div id=\"five\">\n        <div class=\"item\">\n            <i class=\"fa fa-circle status5\" aria-hidden=\"true\"></i>\n            <span class=\"caption\">Full</span>\n        </div>\n     </div>\n   </div>\n  <br /><br />\n<form name=\"bbCitizenForm\" >\n<!-- <h5>Selected Road ID: {{node.name}}</h5> -->\n<table>\n<thead>\n  <tr>\n    <th></th>\n    <th><a ng-click=\"send({payload:['sort','name', msg.payload, 'mostUsedName']})\">{{msg.mostUsedName ? 'Name &#8593;' : 'Name &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','AvgFillingRatePerDay', msg.payload, 'mostUsedAvailability']})\">{{msg.mostUsedAvailability ? 'Availability &#8593;' : 'Availability &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','status', msg.payload, 'mostUsedStatus']})\">{{msg.mostUsedStatus ? 'Status &#8593;' : 'Status &darr;' }}</a></th>\n  </tr>\n</thead>\n  <tr ng-repeat=\"obj in msg.payload track by $index\">\n    <td>\n    <input type=\"radio\" ng-model=\"node.name\" value=\"{{obj.name}}\"  name=\"data\"  ng-change=\"send({payload:['radio', obj.name, obj ]})\"></td>\n    <td>{{ obj.name }}</td>\n    <td>{{ obj.AvgFillingRatePerDay }}</td>\n    <td ng-if=\"obj.status == 0\"><i class=\"fa fa-circle status1\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 1\"><i class=\"fa fa-circle status2\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 2\"><i class=\"fa fa-circle status3\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 3\"><i class=\"fa fa-circle status4\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 4\"><i class=\"fa fa-circle status5\" aria-hidden=\"true\"></i></td>\n  </tr>\n</table>\n </form>\n\n\n\n",
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 1560.4444580078125,
-        "y": 425.4444580078125,
+        "x": 1564.4444580078125,
+        "y": 426.4444580078125,
         "wires": [
             [
-                "8eec0d3e.df73d"
+                "e28d9ea8.bac578",
+                "64a5e18f.149d08",
+                "778ee5df.cf073c",
+                "a6bf7d80.ca3e78"
             ]
         ]
     },
     {
-        "id": "7c9f829b.2c7a84",
+        "id": "843850f6.7d855",
         "type": "ui_template",
-        "z": "fcb21c88.a58e5",
-        "group": "ea05d9e7.d6a718",
+        "z": "c1359a77.ac5478",
+        "group": "7fdb439.94a62bc",
         "name": "Most Unused Bottlebanks",
         "order": 0,
         "width": "12",
         "height": "10",
-        "format": "<style>\ntable {\n    color: #333;\n    font-family: Helvetica, Arial, sans-serif;\n    width: 100%;\n    border-collapse: collapse;\n    border-spacing: 0;\n}\ntd, th {\n    border: 1px solid transparent;\n    /* No more visible border */\n    height: 30px;\n    transition: all 0.3s;\n    /* Simple transition for hover effect */\n}\nth {\n    background: #DFDFDF;\n    /* Darken header a bit */\n    font-weight: bold;\n}\ntd {\n    background: #FAFAFA;\n    text-align: center;\n}\n\n/* Cells in even rows (2,4,6...) are one color */\n\ntr:nth-child(even) td {\n    background: #F1F1F1;\n}\n\n/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */\n\ntr:nth-child(odd) td {\n    background: #FEFEFE;\n}\ntr td:hover {\n    background: #666;\n    color: #FFF;\n}\n\n/* Hover cell effect! */\n</style>\n<style>\n    <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.4.1/css/all.css\" integrity=\"sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz\" crossorigin=\"anonymous\">\n</style>\n\n<script>\n\n(function() {\n    \n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            if (msg) {\n             // Do something when msg arrives\n             scope.node = {\n              name : '',\n             };\n            }\n    \n        });\n     \n    })(scope);\n    \n})();\n</script>\n\n\n<form name=\"bbCitizenForm\" >\n<!-- <h5>Selected Road ID: {{node.name}}</h5> -->\n<table>\n<thead>\n  <tr>\n    <th></th>\n    <th><a ng-click=\"send({payload:['sort','name', msg.payload]})\">{{msg.mostUnUsedName ? 'Name &#8593;' : 'Name &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','AvgFillingRatePerDay', msg.payload]})\">{{msg.mostUnUsedAvailability ? 'Availability &#8593;' : 'Availability &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','status', msg.payload]})\">{{msg.mostUnUsedStatus ? 'Status &#8593;' : 'Status &darr;' }}</a></th>\n  </tr>\n</thead>\n  <tr ng-repeat=\"obj in msg.payload track by $index\">\n    <td>\n    <input type=\"radio\" ng-model=\"node.name\" value=\"{{obj.name}}\"  name=\"data\"  ng-change=\"send({payload:['radio', obj.name, obj ]})\"></td>\n    <td>{{ obj.name }}</td>\n    <td>{{ obj.AvgFillingRatePerDay }}</td>\n    <td></td>\n  </tr>\n</table>\n </form>\n\n\n\n",
+        "format": "<style>\ntable {\n    color: #333;\n    font-family: Helvetica, Arial, sans-serif;\n    width: 100%;\n    border-collapse: collapse;\n    border-spacing: 0;\n}\ntd, th {\n    border: 1px solid transparent;\n    /* No more visible border */\n    height: 30px;\n    transition: all 0.3s;\n    /* Simple transition for hover effect */\n}\nth {\n    background: #DFDFDF;\n    /* Darken header a bit */\n    font-weight: bold;\n}\ntd {\n    background: #FAFAFA;\n    text-align: center;\n}\n\n/* Cells in even rows (2,4,6...) are one color */\n\ntr:nth-child(even) td {\n    background: #F1F1F1;\n}\n\n/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */\n\ntr:nth-child(odd) td {\n    background: #FEFEFE;\n}\n\ntr td:hover {\n    background: #666;\n    color: #FFF;\n}\n\n.status1{\n    color:#c0392b;\n}\n.status2{\n    color:#9fa8da;\n}\n.status3{\n    color:#3f51b5;\n}\n.status4{\n    color:#1a237e;\n}\n.status5{\n    color:#27ae60;\n}\n\n.tooltip {\n  position: relative;\n  display: inline-block;\n  \n}\n\n.tooltip .tooltiptext {\n  visibility: hidden;\n  width: 120px;\n  background-color: black;\n  color: #fff;\n  text-align: center;\n  border-radius: 6px;\n  padding: 5px 0;\n\n  /* Position the tooltip */\n  position: absolute;\n  z-index: 1;\n}\n\n.tooltip:hover .tooltiptext {\n  visibility: visible;\n}\n\n\n/* Hover cell effect! */\n</style>\n<style>\n    <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.4.1/css/all.css\" integrity=\"sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz\" crossorigin=\"anonymous\">\n</style>\n\n<script>\n\n(function() {\n    \n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            if (msg) {\n             // Do something when msg arrives\n             scope.node = {\n              name : msg.default,\n             };\n            }\n    \n        });\n     \n    })(scope);\n    \n})();\n</script>\n\n\n<form name=\"bbCitizenForm\" >\n<!-- <h5>Selected Road ID: {{node.name}}</h5> -->\n<table>\n<thead>\n  <tr>\n    <th></th>\n    <th><a ng-click=\"send({payload:['sort','name', msg.payload]})\">{{msg.mostUnUsedName ? 'Name &#8593;' : 'Name &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','AvgFillingRatePerDay', msg.payload]})\">{{msg.mostUnUsedAvailability ? 'Availability &#8593;' : 'Availability &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','status', msg.payload]})\">{{msg.mostUnUsedStatus ? 'Status &#8593;' : 'Status &darr;' }}</a></th>\n  </tr>\n</thead>\n  <tr ng-repeat=\"obj in msg.payload track by $index\">\n    <td>\n    <input type=\"radio\" ng-model=\"node.name\" value=\"{{obj.name}}\"  name=\"data\"  ng-change=\"send({payload:['radio', obj.name, obj ]})\"></td>\n    <td>{{ obj.name }}</td>\n    <td>{{ obj.AvgFillingRatePerDay }}</td>\n    <td ng-if=\"obj.status == 0\"><i class=\"fa fa-circle status1\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 1\"><i class=\"fa fa-circle status2\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 2\"><i class=\"fa fa-circle status3\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 3\"><i class=\"fa fa-circle status4\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 4\"><i class=\"fa fa-circle status5\" aria-hidden=\"true\"></i></td>\n  </tr>\n</table>\n </form>\n\n\n\n",
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
@@ -224,37 +228,43 @@
         "y": 489.77777099609375,
         "wires": [
             [
-                "83eab72d.2fe568"
+                "e28d9ea8.bac578",
+                "43244458.2e2734",
+                "a6bf7d80.ca3e78",
+                "8171038b.b54c4"
             ]
         ]
     },
     {
-        "id": "aaf4ea49.094d5",
+        "id": "d911903e.eea96",
         "type": "ui_template",
-        "z": "fcb21c88.a58e5",
-        "group": "c30b9574.08884",
+        "z": "c1359a77.ac5478",
+        "group": "670c6f1a.b29618",
         "name": "Available Bottlebanks",
         "order": 0,
         "width": "16",
         "height": "10",
-        "format": "<style>\ntable {\n    color: #333;\n    font-family: Helvetica, Arial, sans-serif;\n    width: 100%;\n    border-collapse: collapse;\n    border-spacing: 0;\n}\ntd, th {\n    border: 1px solid transparent;\n    /* No more visible border */\n    height: 30px;\n    transition: all 0.3s;\n    /* Simple transition for hover effect */\n}\nth {\n    background: #DFDFDF;\n    /* Darken header a bit */\n    font-weight: bold;\n}\ntd {\n    background: #FAFAFA;\n    text-align: center;\n}\n\n/* Cells in even rows (2,4,6...) are one color */\n\ntr:nth-child(even) td {\n    background: #F1F1F1;\n}\n\n/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */\n\ntr:nth-child(odd) td {\n    background: #FEFEFE;\n}\ntr td:hover {\n    background: #666;\n    color: #FFF;\n}\n\n    a {\n    }\n    a:hover {\n        color:#2AB672 ;\n    }\n\n/* Hover cell effect! */\n</style>\n<style>\n    <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.4.1/css/all.css\" integrity=\"sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz\" crossorigin=\"anonymous\">\n</style>\n\n<script>\n\n(function() {\n    \n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            if (msg) {\n             // Do something when msg arrives\n             scope.node = {\n              name : '',\n             };\n            }\n    \n        });\n     \n    })(scope);\n    \n})();\n</script>\n\n\n<form name=\"bbCitizenForm\" >\n<!-- <h5>Selected Road ID: {{node.name}}</h5> -->\n<table>\n<thead>\n  <tr>\n    <th></th>\n    <th><a ng-click=\"send({payload:['sort','name', msg.payload ]})\">{{msg.allUsedName ? 'Name &#8593;' : 'Name &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','AvgFillingRatePerDay', msg.payload ]})\">{{msg.alltUsedAvailability ? 'Availability &#8593;' : 'Availability &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','status',  msg.payload ]})\">{{msg.allUsedStatus ? 'Status &#8593;' : 'Status &darr;' }}</a></th>\n  </tr>\n</thead>\n  <tr ng-repeat=\"obj in msg.payload track by $index\">\n    <td>\n    <input type=\"radio\" ng-model=\"node.name\" value=\"{{obj.name}}\"  name=\"data\"  ng-change=\"send({payload:['radio', obj.name, obj ]})\"></td>\n    <td>{{ obj.name }}</td>\n    <td>{{ obj.AvgFillingRatePerDay }}</td>\n    <td></td>\n  </tr>\n</table>\n </form>\n\n\n\n",
+        "format": "<style>\ntable {\n    color: #333;\n    font-family: Helvetica, Arial, sans-serif;\n    width: 100%;\n    border-collapse: collapse;\n    border-spacing: 0;\n}\ntd, th {\n    border: 1px solid transparent;\n    /* No more visible border */\n    height: 30px;\n    transition: all 0.3s;\n    /* Simple transition for hover effect */\n}\nth {\n    background: #DFDFDF;\n    /* Darken header a bit */\n    font-weight: bold;\n}\ntd {\n    background: #FAFAFA;\n    text-align: center;\n}\n\n/* Cells in even rows (2,4,6...) are one color */\n\ntr:nth-child(even) td {\n    background: #F1F1F1;\n}\n\n/* Cells in odd rows (1,3,5...) are another (excludes header cells)  */\n\ntr:nth-child(odd) td {\n    background: #FEFEFE;\n}\ntr td:hover {\n    background: #666;\n    color: #FFF;\n}\n\n    a {\n    }\n    a:hover {\n        color:#2AB672 ;\n    }\n\n.status1{\n    color:#c0392b;\n}\n.status2{\n    color:#9fa8da;\n}\n.status3{\n    color:#3f51b5;\n}\n.status4{\n    color:#1a237e;\n}\n.status5{\n    color:#27ae60;\n}\n\n.tooltip {\n  position: relative;\n  display: inline-block;\n  \n}\n\n.tooltip .tooltiptext {\n  visibility: hidden;\n  width: 120px;\n  background-color: black;\n  color: #fff;\n  text-align: center;\n  border-radius: 6px;\n  padding: 5px 0;\n\n  /* Position the tooltip */\n  position: absolute;\n  z-index: 1;\n}\n\n.tooltip:hover .tooltiptext {\n  visibility: visible;\n}\n\n\n/* Hover cell effect! */\n</style>\n<style>\n    <link rel=\"stylesheet\" href=\"https://use.fontawesome.com/releases/v5.4.1/css/all.css\" integrity=\"sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz\" crossorigin=\"anonymous\">\n</style>\n\n<script>\n\n(function() {\n    \n    (function(scope) {\n        scope.$watch('msg', function(msg) {\n            if (msg) {\n             // Do something when msg arrives\n             scope.node = {\n              name : msg.default,\n             };\n            }\n    \n        });\n     \n    })(scope);\n    \n})();\n</script>\n\n<form name=\"bbCitizenForm\" >\n<!-- <h5>Selected Road ID: {{node.name}}</h5> -->\n<table>\n<thead>\n  <tr>\n    <th></th>\n    <th><a ng-click=\"send({payload:['sort','name', msg.payload ]})\">{{msg.allUsedName ? 'Name &#8593;' : 'Name &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','AvgFillingRatePerDay', msg.payload ]})\">{{msg.alltUsedAvailability ? 'Availability &#8593;' : 'Availability &darr;' }}</a></th>\n    <th><a ng-click=\"send({payload:['sort','status',  msg.payload ]})\">{{msg.allUsedStatus ? 'Status &#8593;' : 'Status &darr;' }}</a></th>\n  </tr>\n</thead>\n  <tr ng-repeat=\"obj in msg.payload track by $index\">\n    <td>\n    <input type=\"radio\" ng-model=\"node.name\" value=\"{{obj.name}}\"  name=\"data\"  ng-change=\"send({payload:['radio', obj.name, obj ]})\"></td>\n    <td>{{ obj.name }}</td>\n    <td>{{ obj.AvgFillingRatePerDay }}</td>\n    <td ng-if=\"obj.status == 0\"><i class=\"fa fa-circle status1\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 1\"><i class=\"fa fa-circle status2\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 2\"><i class=\"fa fa-circle status3\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 3\"><i class=\"fa fa-circle status4\" aria-hidden=\"true\"></i></td>\n    <td ng-if=\"obj.status == 4\"><i class=\"fa fa-circle status5\" aria-hidden=\"true\"></i></td>\n  </tr>\n</table>\n </form>\n\n\n\n",
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 1550.111083984375,
-        "y": 548.6666870117188,
+        "x": 1543.111083984375,
+        "y": 537.6666870117188,
         "wires": [
             [
-                "a998a65f.0b95c",
-                "f491b0d1.6e07c"
+                "d318c0b.29deb4",
+                "e28d9ea8.bac578",
+                "6c0f0df8.0da86c",
+                "778ee5df.cf073c",
+                "8171038b.b54c4"
             ]
         ]
     },
     {
-        "id": "705fd123.d54758",
+        "id": "4725bf22.4b16b",
         "type": "ui_template",
-        "z": "fcb21c88.a58e5",
-        "group": "e5ecf941.68058",
+        "z": "c1359a77.ac5478",
+        "group": "9812299c.6e9b4",
         "name": "Bottlebanks on Worldmap",
         "order": 0,
         "width": 0,
@@ -270,10 +280,10 @@
         ]
     },
     {
-        "id": "a41c0f67.49d708",
+        "id": "4fddf31e.1cf004",
         "type": "ui_template",
-        "z": "fcb21c88.a58e5",
-        "group": "6055fc80.4d1004",
+        "z": "c1359a77.ac5478",
+        "group": "b791f6a8.8f8f9",
         "name": "Bottle Bank Information",
         "order": 0,
         "width": "8",
@@ -289,59 +299,59 @@
         ]
     },
     {
-        "id": "a46962bd.80aa7",
+        "id": "57488cb9.bb73f4",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "List Extraction for Most Unused Bottlebanks",
-        "func": "centerMsg = msg[\"centerAvg\"]\nlistOfBottleBankItems = []\n\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) < centerMsg:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nmsg[\"mostUnUsedName\"] = True\nmsg[\"mostUnUsedAvailability\"] = True\nmsg[\"mostUnUsedStatus\"] = True\n\nreturn msg",
+        "func": "centerMsg = msg[\"centerAvg\"]\nlistOfBottleBankItems = []\n\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) < centerMsg:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nmsg[\"mostUnUsedName\"] = True\nmsg[\"mostUnUsedAvailability\"] = True\nmsg[\"mostUnUsedStatus\"] = True\n\nmsg[\"default\"] = \"\"\nreturn msg",
         "outputs": 1,
-        "x": 1115.6666259765625,
+        "x": 1028.6666259765625,
         "y": 488,
         "wires": [
             [
-                "7c9f829b.2c7a84",
-                "6d8b7080.1f552"
+                "ac8b69a6.0f9a2",
+                "b2adecea.c91498"
             ]
         ]
     },
     {
-        "id": "8e026deb.5ad19",
+        "id": "8accc2fc.1b3a38",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Notification Extraction",
-        "func": "listOfBottleBankItems = []\nnotificationCriterion = 80\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) > 80:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nreturn msg\nreturn msg",
+        "func": "listOfBottleBankItems = []\nnotificationCriterion = 80\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) > 80:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nreturn msg",
         "outputs": 1,
-        "x": 1050.77783203125,
+        "x": 963.77783203125,
         "y": 638.9999389648438,
         "wires": [
             [
-                "a41c0f67.49d708",
-                "6d8b7080.1f552",
-                "11d3518f.5748ae"
+                "4fddf31e.1cf004",
+                "ac8b69a6.0f9a2",
+                "5e408114.7b8cf8"
             ]
         ]
     },
     {
-        "id": "6d8b7080.1f552",
+        "id": "ac8b69a6.0f9a2",
         "type": "debug",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "",
-        "active": true,
+        "active": false,
         "console": "false",
         "complete": "false",
-        "x": 1030.5,
+        "x": 943.5,
         "y": 728,
         "wires": []
     },
     {
-        "id": "11d3518f.5748ae",
+        "id": "5e408114.7b8cf8",
         "type": "ui_template",
-        "z": "fcb21c88.a58e5",
-        "group": "70d44e68.fbd7e8",
+        "z": "c1359a77.ac5478",
+        "group": "37c5a8f.a2237d8",
         "name": "Notifications",
         "order": 0,
         "width": "6",
-        "height": "22",
+        "height": "23",
         "format": "<div ng-bind-html=\"msg.payload\"></div>",
         "storeOutMessages": false,
         "fwdInMessages": false,
@@ -353,14 +363,14 @@
         ]
     },
     {
-        "id": "8e376eb2.9a9028",
+        "id": "e2b8605f.8fe9",
         "type": "ui_template",
-        "z": "fcb21c88.a58e5",
-        "group": "70d44e68.fbd7e8",
+        "z": "c1359a77.ac5478",
+        "group": "37c5a8f.a2237d8",
         "name": "Information of Interest",
         "order": 1,
         "width": "6",
-        "height": "10",
+        "height": "12",
         "format": "<div >\n    <h3>Available Spaces for Bottle Bank Installations</h3>\n</div>",
         "storeOutMessages": false,
         "fwdInMessages": false,
@@ -372,81 +382,81 @@
         ]
     },
     {
-        "id": "a998a65f.0b95c",
+        "id": "d318c0b.29deb4",
         "type": "function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Sensor Detailed Information ",
         "func": "\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
-        "x": 1949.5,
-        "y": 547,
+        "x": 1932.5,
+        "y": 923,
         "wires": [
             []
         ]
     },
     {
-        "id": "da67c44b.a45968",
+        "id": "d56b1d37.2d132",
         "type": "debug",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "",
-        "active": true,
+        "active": false,
         "console": "false",
         "complete": "false",
-        "x": 2244.5,
-        "y": 596,
+        "x": 2752.5,
+        "y": 553,
         "wires": []
     },
     {
-        "id": "f491b0d1.6e07c",
+        "id": "a215dccf.9ba6e8",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Sort by name, availability or status",
         "func": "if msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"name\" and msg['payload'][3] == \"allUsedName\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['name']) \n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"AvgFillingRatePerDay\" and msg['payload'][3] == \"allUsedAvailability\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay']) \n    msg['payload'] = sortedList\n    return msg\n    \nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"status\" and msg['payload'][3] == \"allUsedStatus\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['status']) \n    msg['payload'] = sortedList\n    return msg\n\nreturn None  ",
         "outputs": 1,
-        "x": 1969.5,
-        "y": 596,
+        "x": 2469.5,
+        "y": 553,
         "wires": [
             [
-                "da67c44b.a45968",
-                "aaf4ea49.094d5"
+                "d56b1d37.2d132",
+                "d911903e.eea96"
             ]
         ]
     },
     {
-        "id": "8eec0d3e.df73d",
+        "id": "e296afbb.50a04",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Sort by name, availability or status",
-        "func": "if msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"name\" and msg['payload'][3] == \"mostUsedName\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['name']) \n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"AvgFillingRatePerDay\" and msg['payload'][3] == \"mostUsedAvailability\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay']) \n    msg['payload'] = sortedList\n    return msg\n    \nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"status\" and msg['payload'][3] == \"mostUsedStatus\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['status']) \n    msg['payload'] = sortedList\n    return msg\n\n\nreturn None  ",
+        "func": "if msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"name\" and msg['payload'][3] == \"mostUsedName\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['name']) \n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"AvgFillingRatePerDay\" and msg['payload'][3] == \"mostUsedAvailability\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay']) \n    msg['payload'] = sortedList\n    return msg\n    \nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"status\" and msg['payload'][3] == \"mostUsedStatus\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['status']) \n    msg['payload'] = sortedList\n    return msg\n\nreturn None  ",
         "outputs": 1,
-        "x": 1964,
-        "y": 426,
+        "x": 2476,
+        "y": 431,
         "wires": [
             [
-                "9d4f1c75.4b3878"
+                "9585ee59.cf4a8"
             ]
         ]
     },
     {
-        "id": "83eab72d.2fe568",
+        "id": "9813f9dd.401dd",
         "type": "python3-function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Sort by name, availability or status",
         "func": "if msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"name\" and msg['payload'][3] == \"mostUnUsedName\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['name']) \n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"AvgFillingRatePerDay\" and msg['payload'][3] == \"mostUnUsedAvailability\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay']) \n    msg['payload'] = sortedList\n    return msg\n    \nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"status\" and msg['payload'][3] == \"mostUnUsedStatus\" :\n    sortedList =  sorted(msg['payload'][2], key=lambda k: k['status']) \n    msg['payload'] = sortedList\n    return msg\n\nreturn None  ",
         "outputs": 1,
-        "x": 1963,
-        "y": 490,
+        "x": 2472,
+        "y": 487,
         "wires": [
             [
-                "7c9f829b.2c7a84"
+                "843850f6.7d855"
             ]
         ]
     },
     {
-        "id": "cd89faa4.e69318",
+        "id": "e0df0d09.9ddc8",
         "type": "function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Flow Context Variables For Sorting",
         "func": "flow.set('mostUsedName','nil');\nflow.set('mostUsedAvailability','nil');\nflow.set('mostUsedStatus', 'nil');\n\nflow.set('mostUnUsedName', 'nil');\nflow.set('mostUnUsedAvailability', 'nil');\nflow.set('mostUnUsedStatus', 'nil');\n\nflow.set('allUsedName', 'asc');\nflow.set('alltUsedAvailability', 'asc');\nflow.set('allUsedStatus', 'asc');\n\nreturn msg;",
         "outputs": 1,
@@ -455,26 +465,26 @@
         "y": 516,
         "wires": [
             [
-                "1a90f5dc.fd9ea2"
+                "8ff70106.035c6"
             ]
         ]
     },
     {
-        "id": "1a90f5dc.fd9ea2",
+        "id": "8ff70106.035c6",
         "type": "debug",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "",
-        "active": true,
+        "active": false,
         "console": "false",
         "complete": "false",
-        "x": 712.5,
+        "x": 609.5,
         "y": 516,
         "wires": []
     },
     {
-        "id": "559a454.602d13c",
+        "id": "29988470.43384c",
         "type": "function",
-        "z": "fcb21c88.a58e5",
+        "z": "c1359a77.ac5478",
         "name": "Processing Funtction for ASC/DESC",
         "func": "if( msg.payload[3] == \"mostUsedName\" )\n{\n    \n}else if ( msg.payload[3] == \"mostUsedAvailability\" )\n{\n    \n}else if ( msg.payload[3] == \"mostUsedStatus\" )\n{\n    \n}else if ( msg.payload[3] == \"mostUnUsedName\" )\n{\n    \n}else if ( msg.payload[3] == \"mostUnUsedAvailability\" )\n{\n    \n}else if ( msg.payload[3] == \"mostUnUsedStatus\" )\n{\n    \n}else if ( msg.payload[3] == \"allUsedName\" )\n{\n    \n}else if ( msg.payload[3] == \"alltUsedAvailability\" )\n{\n    \n}else if ( msg.payload[3] == \"allUsedStatus\" )\n{\n    \n}\n\nreturn msg;",
         "outputs": 1,
@@ -486,73 +496,275 @@
         ]
     },
     {
-        "id": "22d8300d.54b3d",
+        "id": "f86cb08d.dd28d",
+        "type": "ui_template",
+        "z": "c1359a77.ac5478",
+        "group": "b3ea3a79.233028",
+        "name": "Footer",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "format": "<div layout=\"row\">\n  <div flex>\n        <div style=\"text-align:left;\">\n            <img src=\"https://st1.ning.com/topology/rest/1.0/file/get/1064781?profile=RESIZE_180x180\" alt=\"Fraunhofer IAIS\" style=\"object-fit:contain; width:160px; height:80px; align:right; \" />\n        </div>   \n  </div>\n  <div flex>\n    <div style=\"text-align:center;\">\n        <img src=\"https://st1.ning.com/topology/rest/1.0/file/get/8822449?profile=original&xn_version=201901290618\" width=\"160px\" height=\"80px\" style=\"object-fit:contain;   border-radius: 25px;\">\n    </div>\n  </div>\n  <div flex>\n    <div style=\"text-align:right;\">\n        <img src=\"https://www.grandlyon.com/typo3conf/ext/gl_metropole_template/Resources/Public/Images/Content/logo-grand-lyon-la-metropole.png\" alt=\"Grand Lyon\" style=\"object-fit:contain; width:160px; height:80px; align:right; \" />\n    </div>\n  </div>\n</div>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "templateScope": "local",
+        "x": 1500.5,
+        "y": 372,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ceb40439.11237",
+        "type": "debug",
+        "z": "c1359a77.ac5478",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 626.5,
+        "y": 398,
+        "wires": []
+    },
+    {
+        "id": "e28d9ea8.bac578",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "searchBottleBanks",
+        "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.payload = msg.payload[1]\n    msg.payload = { command:{search:msg.payload} };\n    return msg;\n}else\n{\n    msg.payload = \"\";\n}\n\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1884,
+        "y": 180,
+        "wires": [
+            [
+                "f334db48.b1801"
+            ]
+        ]
+    },
+    {
+        "id": "64a5e18f.149d08",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Status Update MUBB",
+        "func": "if(msg.payload[0] == \"sort\")\n{\n    msg.default = msg.payload[1];\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1924.5,
+        "y": 430,
+        "wires": [
+            [
+                "e296afbb.50a04"
+            ]
+        ]
+    },
+    {
+        "id": "43244458.2e2734",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Status Update MUUB",
+        "func": "if(msg.payload[0] == \"sort\")\n{\n    msg.default = msg.payload[1];\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1923,
+        "y": 491,
+        "wires": [
+            [
+                "9813f9dd.401dd"
+            ]
+        ]
+    },
+    {
+        "id": "6c0f0df8.0da86c",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Status Update ALL",
+        "func": "if(msg.payload[0] == \"sort\")\n{\n    msg.default = msg.payload[1];\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1913,
+        "y": 551,
+        "wires": [
+            [
+                "a215dccf.9ba6e8"
+            ]
+        ]
+    },
+    {
+        "id": "778ee5df.cf073c",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Clear MUUB",
+        "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.default = \"\";\n    msg.payload = flow.get(\"MUUB\");\n    return msg;\n}\n\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1897.5,
+        "y": 651,
+        "wires": [
+            [
+                "3efd7afc.372e86"
+            ]
+        ]
+    },
+    {
+        "id": "1b3d026e.09e0e6",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Set Context MUBB",
+        "func": "flow.set('MUBB', msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1315.5,
+        "y": 427,
+        "wires": [
+            [
+                "9585ee59.cf4a8"
+            ]
+        ]
+    },
+    {
+        "id": "b2adecea.c91498",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Set Context MUUB",
+        "func": "flow.set('MUUB', msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1316,
+        "y": 487,
+        "wires": [
+            [
+                "843850f6.7d855"
+            ]
+        ]
+    },
+    {
+        "id": "d80595c7.428f9",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Set Context ALL",
+        "func": "flow.set('ALL', msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1303,
+        "y": 550,
+        "wires": [
+            [
+                "d911903e.eea96"
+            ]
+        ]
+    },
+    {
+        "id": "a6bf7d80.ca3e78",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Clear ALL",
+        "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.default = \"\";\n    msg.payload = flow.get(\"ALL\");\n    return msg;\n}\n\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2082,
+        "y": 655,
+        "wires": [
+            [
+                "d911903e.eea96"
+            ]
+        ]
+    },
+    {
+        "id": "8171038b.b54c4",
+        "type": "function",
+        "z": "c1359a77.ac5478",
+        "name": "Clear MUBB",
+        "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.default = \"\";\n    msg.payload = flow.get(\"MUBB\");\n    return msg;\n}\n\nreturn null;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2286,
+        "y": 654,
+        "wires": [
+            [
+                "9585ee59.cf4a8"
+            ]
+        ]
+    },
+    {
+        "id": "90c3b622.1c061",
         "type": "ui_group",
         "z": "",
         "name": "Most Used Bottlebanks",
-        "tab": "9bb29fe1.0ddf2",
+        "tab": "6632dc9c.1edbbc",
         "order": 5,
         "disp": true,
         "width": "12",
         "collapse": false
     },
     {
-        "id": "ea05d9e7.d6a718",
+        "id": "7fdb439.94a62bc",
         "type": "ui_group",
         "z": "",
         "name": "Most Unused Bottlebanks",
-        "tab": "9bb29fe1.0ddf2",
+        "tab": "6632dc9c.1edbbc",
         "order": 6,
         "disp": true,
         "width": "12",
         "collapse": false
     },
     {
-        "id": "c30b9574.08884",
+        "id": "670c6f1a.b29618",
         "type": "ui_group",
         "z": "",
         "name": "Status of Bottle Banks",
-        "tab": "9bb29fe1.0ddf2",
+        "tab": "6632dc9c.1edbbc",
         "order": 1,
         "disp": true,
         "width": "16",
         "collapse": false
     },
     {
-        "id": "e5ecf941.68058",
+        "id": "9812299c.6e9b4",
         "type": "ui_group",
         "z": "",
         "name": "Bottlebanks on Worldmap",
-        "tab": "9bb29fe1.0ddf2",
+        "tab": "6632dc9c.1edbbc",
         "order": 4,
         "disp": true,
         "width": "24",
         "collapse": false
     },
     {
-        "id": "6055fc80.4d1004",
+        "id": "b791f6a8.8f8f9",
         "type": "ui_group",
         "z": "",
         "name": "Detailed Information Bottle Bank",
-        "tab": "9bb29fe1.0ddf2",
+        "tab": "6632dc9c.1edbbc",
         "order": 2,
         "disp": true,
         "width": "8",
         "collapse": false
     },
     {
-        "id": "70d44e68.fbd7e8",
+        "id": "37c5a8f.a2237d8",
         "type": "ui_group",
         "z": "",
         "name": "Bottle Banks To Be Emptied",
-        "tab": "9bb29fe1.0ddf2",
+        "tab": "6632dc9c.1edbbc",
         "order": 3,
         "disp": true,
-        "width": "6",
+        "width": "8",
         "collapse": false
     },
     {
-        "id": "9bb29fe1.0ddf2",
+        "id": "b3ea3a79.233028",
+        "type": "ui_group",
+        "z": "",
+        "name": "Footer",
+        "tab": "6632dc9c.1edbbc",
+        "order": 7,
+        "disp": false,
+        "width": "32",
+        "collapse": false
+    },
+    {
+        "id": "6632dc9c.1edbbc",
         "type": "ui_tab",
         "z": "",
         "name": "Bottlebank Waste Management Dashboard",
