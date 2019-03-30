@@ -1,13 +1,13 @@
 [
     {
-        "id": "c1359a77.ac5478",
+        "id": "227c356f.6f82e2",
         "type": "tab",
         "label": "7_Bottlebank_Waste_Management_Dashboard"
     },
     {
-        "id": "772e75a5.8f0c8c",
+        "id": "3d13180c.da4bf8",
         "type": "inject",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "topic": "",
         "payload": "",
@@ -19,16 +19,16 @@
         "y": 243.3333282470703,
         "wires": [
             [
-                "6587da05.fea524",
-                "ae16169b.f4af18",
-                "e0df0d09.9ddc8"
+                "5c791b4e.78e96c",
+                "edc9dc90.9285a8",
+                "49808f03.69e128"
             ]
         ]
     },
     {
-        "id": "6587da05.fea524",
+        "id": "5c791b4e.78e96c",
         "type": "omiNodeV9",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "BottleBank O-MI Node",
         "path_InfoItem": "https://biotope-omi.alpha.grandlyon.com/Objects/Organization:SigrenEa-V1.1.0",
         "token": "",
@@ -48,14 +48,14 @@
         "y": 295,
         "wires": [
             [
-                "bb63c1b0.0b41f"
+                "27ba0915.6130a6"
             ]
         ]
     },
     {
-        "id": "bb63c1b0.0b41f",
+        "id": "27ba0915.6130a6",
         "type": "xml",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "BottleBank O-DF structure to JSON",
         "attr": "",
         "chr": "",
@@ -63,14 +63,14 @@
         "y": 294,
         "wires": [
             [
-                "593126b6.fa7458"
+                "61f39405.cea394"
             ]
         ]
     },
     {
-        "id": "593126b6.fa7458",
+        "id": "61f39405.cea394",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Extract response from BottleBank O-MI Respnse",
         "func": "#taking response value \n#Note in response first is longitude --> 0 and latitude -->1\nimport copy\n\nresponse = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"return\"][0][\"$\"][\"returnCode\"];\nlistOfBottleBankItems = []\nbottleBankList = availableBB = []\nbottleBankProperty = bottleBankName = bottleBankMaxCapacity = bottleBankGlass = bottleBankWastePoint = bottleBankAvgFillingRatePerDay = bottleBankFillingLimit = None \nlongitude = latitude = name = statusBB = identifier = None \navgMax = avgMin = 0.0 \ntemp = [] \n\nif response == \"200\":\n    node.log(\"Extract Response O-MI Node: Success in reading O-MI Node Contents\")\n \n    bottleBankObject = msg[\"payload\"][\"omiEnvelope\"][\"response\"][0][\"result\"][0][\"msg\"][0][\"Objects\"][0][\"Object\"][0][\"Object\"];\n    \n    for items in bottleBankObject:\n        if items[\"$\"][\"type\"] == \"ssn:Deployment\" :\n            bottleBankList = items[\"Object\"] \n        elif items[\"$\"] == \"org:Site\" :\n            siteMetaData = items\n        \n\n    for nodes in bottleBankList:\n        if (\"Object\" in nodes) and (\"$\" in nodes): \n            if nodes[\"$\"][\"type\"]: \n                node.log(\"From the communcation device\")\n                nodeObject = nodes[\"Object\"][0][\"Object\"][0][\"Object\"]\n        \n        for things in nodeObject:\n            if (\"$\" in things) and (\"InfoItem\" in things) :\n                if things[\"$\"][\"type\"] == \"ssn:Property\":\n                    bottleBankProperty = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] == \"SWM:MaxCapacity\":\n                    bottleBankMaxCapacity = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] ==  \"SWM:Glass\":\n                    bottleBankGlass = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n                elif things['$'][\"type\"] ==  \"SWM:WastePoint\":\n                    for coords in  things[\"InfoItem\"]:\n                        if coords[\"$\"][\"name\"] == \"geo:lat\":\n                            latitude = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"geo:long\":\n                            longitude = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"schema:name\":\n                            name = coords[\"value\"][0][\"_\"]\n                        elif coords[\"$\"][\"name\"] == \"schema:identifier\":\n                            identifier = coords[\"value\"][0][\"_\"]\n                        \n                elif things['$'][\"type\"] ==  \"SWM:AvgFillingRatePerDay\":\n                    bottleBankAvgFillingRatePerDay = float(things[\"InfoItem\"][0][\"value\"][0][\"_\"])\n                elif things['$'][\"type\"] == \"SWM:FillingLimit\":\n                    bottleBankFillingLimit = things[\"InfoItem\"][0][\"value\"][0][\"_\"]\n          \n        if bottleBankAvgFillingRatePerDay == 0:\n            statusBB = 0\n        if bottleBankAvgFillingRatePerDay == 100:\n            statusBB = 4\n        if bottleBankAvgFillingRatePerDay == 50:\n            statusBB = 2\n        if bottleBankAvgFillingRatePerDay > 0 and bottleBankAvgFillingRatePerDay < 50:\n            statusBB = 1\n        if bottleBankAvgFillingRatePerDay > 50 and bottleBankAvgFillingRatePerDay < 100:\n            statusBB = 3\n         \n        listOfBottleBankItems.append({\"Property\": bottleBankProperty, \"MaximumCapacity\": bottleBankMaxCapacity, \"Glass\": bottleBankGlass, \"AvgFillingRatePerDay\": bottleBankAvgFillingRatePerDay, \"FillingLimit\": bottleBankFillingLimit, \"lat\": latitude, \"lon\": longitude, \"name\": name, \"identifier\": identifier, \"status\": statusBB }) \n        availableBB.append({\"Property\": bottleBankProperty, \"MaximumCapacity\": bottleBankMaxCapacity, \"Glass\": bottleBankGlass, \"AvgFillingRatePerDay\": bottleBankAvgFillingRatePerDay, \"FillingLimit\": bottleBankFillingLimit, \"lat\": latitude, \"lon\": longitude, \"name\": name, \"identifier\": identifier }) \n\n        if( avgMax < float(bottleBankAvgFillingRatePerDay) ):\n            avgMax = float(bottleBankAvgFillingRatePerDay)\n        \n        if( avgMin > float(bottleBankAvgFillingRatePerDay) ):\n            avgMin = float(bottleBankAvgFillingRatePerDay)\n        \n        node.log(bottleBankAvgFillingRatePerDay);\n\n        bottleBankProperty = bottleBankName = bottleBankMaxCapacity = bottleBankGlass = bottleBankWastePoint = bottleBankAvgFillingRatePerDay = bottleBankFillingLimit = None \n        longitude = latitude = name = statusBB = identifier = None \n\n \nelse:\n    node.error(\"Extract Response O-MI Node: Failure in reading O-MI Node Contents\")\n\n\nmsg[\"payload\"] = listOfBottleBankItems\nmsg[\"centerAvg\"] = int((avgMax - avgMin)/2)\n\n#msg[\"payload\"] = coords\nreturn msg",
         "outputs": 1,
@@ -78,20 +78,22 @@
         "y": 343.8888969421387,
         "wires": [
             [
-                "37196a20.7b282e",
-                "84d4e8d4.9acbc8",
-                "b79126da.453848",
-                "57488cb9.bb73f4",
-                "8accc2fc.1b3a38",
-                "ceb40439.11237",
-                "47a4fbee.968f6c"
+                "6e9c1cfc.18f50c",
+                "c92107f6.8d9d18",
+                "4a9fff38.b717a",
+                "948b70b6.7af008",
+                "8ef6ae99.985f2",
+                "935ddde.bad7c2",
+                "53b1c8b6.00ab2",
+                "f49f0767.ccee18",
+                "bcad55e.304ff28"
             ]
         ]
     },
     {
-        "id": "f334db48.b1801",
+        "id": "b0fa0e9f.8bec9",
         "type": "worldmap",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "lat": "",
         "lon": "",
@@ -108,9 +110,9 @@
         "wires": []
     },
     {
-        "id": "37196a20.7b282e",
+        "id": "6e9c1cfc.18f50c",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "parseForTheWorldMap",
         "func": "\nreturn msg",
         "outputs": 1,
@@ -118,14 +120,14 @@
         "y": 297.11114501953125,
         "wires": [
             [
-                "f334db48.b1801"
+                "b0fa0e9f.8bec9"
             ]
         ]
     },
     {
-        "id": "ae16169b.f4af18",
+        "id": "edc9dc90.9285a8",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "move and zoom",
         "func": "msg.payload = { command:{layer:\"Esri Terrain\",lat:61.0,lon:23.0,zoom:3} };\nreturn msg;",
         "outputs": 1,
@@ -134,14 +136,14 @@
         "y": 187.6666522026062,
         "wires": [
             [
-                "f334db48.b1801"
+                "b0fa0e9f.8bec9"
             ]
         ]
     },
     {
-        "id": "85ba40ad.8fc53",
+        "id": "ff515f00.6e2758",
         "type": "inject",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Inject This First",
         "topic": "",
         "payload": "",
@@ -153,14 +155,14 @@
         "y": 187.55560302734375,
         "wires": [
             [
-                "ae16169b.f4af18"
+                "edc9dc90.9285a8"
             ]
         ]
     },
     {
-        "id": "84d4e8d4.9acbc8",
+        "id": "c92107f6.8d9d18",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "List Extraction for Most Used Bottlebanks",
         "func": "centerMsg = msg[\"centerAvg\"]\nlistOfBottleBankItems = []\n\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) > centerMsg:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nmsg[\"mostUsedName\"] = True\nmsg[\"mostUsedAvailability\"] = True\nmsg[\"mostUsedStatus\"] = True\n\nmsg[\"default\"] = \"\"\n\nreturn msg",
         "outputs": 1,
@@ -168,15 +170,15 @@
         "y": 427.66668701171875,
         "wires": [
             [
-                "ac8b69a6.0f9a2",
-                "1b3d026e.09e0e6"
+                "e09aec99.7fc988",
+                "3cedb773.2ae068"
             ]
         ]
     },
     {
-        "id": "b79126da.453848",
+        "id": "4a9fff38.b717a",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "List Extraction for Available Bottlebanks",
         "func": "msg[\"allUsedName\"] = True\nmsg[\"alltUsedAvailability\"] = True\nmsg[\"allUsedStatus\"] = True\n\nmsg[\"default\"] = \"\"\nreturn msg",
         "outputs": 1,
@@ -184,15 +186,15 @@
         "y": 551,
         "wires": [
             [
-                "d80595c7.428f9"
+                "3e86490a.aa555e"
             ]
         ]
     },
     {
-        "id": "9585ee59.cf4a8",
+        "id": "784445fa.7e3594",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "90c3b622.1c061",
+        "z": "227c356f.6f82e2",
+        "group": "2a96a6b.e4a8f5a",
         "name": "Most Used Bottle Banks",
         "order": 0,
         "width": "12",
@@ -205,19 +207,19 @@
         "y": 425.4444580078125,
         "wires": [
             [
-                "e28d9ea8.bac578",
-                "64a5e18f.149d08",
-                "778ee5df.cf073c",
-                "a6bf7d80.ca3e78",
-                "1c91f22a.0452ce"
+                "c78f07e9.d72fc",
+                "adcc8463.948348",
+                "1d670dd.880b1f2",
+                "ade956d0.57aba",
+                "a8cfc8f7.d6981"
             ]
         ]
     },
     {
-        "id": "843850f6.7d855",
+        "id": "91e57ccb.c01528",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "7fdb439.94a62bc",
+        "z": "227c356f.6f82e2",
+        "group": "36c537b8.bb60a",
         "name": "Most Unused Bottlebanks",
         "order": 0,
         "width": "12",
@@ -230,19 +232,19 @@
         "y": 489.77777099609375,
         "wires": [
             [
-                "e28d9ea8.bac578",
-                "43244458.2e2734",
-                "a6bf7d80.ca3e78",
-                "8171038b.b54c4",
-                "1c91f22a.0452ce"
+                "c78f07e9.d72fc",
+                "d296cd09.88c21",
+                "ade956d0.57aba",
+                "e99f16b5.8a45e",
+                "a8cfc8f7.d6981"
             ]
         ]
     },
     {
-        "id": "d911903e.eea96",
+        "id": "1c12b98c.0f8926",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "670c6f1a.b29618",
+        "z": "227c356f.6f82e2",
+        "group": "2bf5b08a.1fab",
         "name": "Available Bottlebanks",
         "order": 0,
         "width": "16",
@@ -255,20 +257,20 @@
         "y": 542.6666870117188,
         "wires": [
             [
-                "d318c0b.29deb4",
-                "e28d9ea8.bac578",
-                "6c0f0df8.0da86c",
-                "778ee5df.cf073c",
-                "8171038b.b54c4",
-                "1c91f22a.0452ce"
+                "33bb6dd6.cc819a",
+                "c78f07e9.d72fc",
+                "52d5b8db.086608",
+                "1d670dd.880b1f2",
+                "e99f16b5.8a45e",
+                "a8cfc8f7.d6981"
             ]
         ]
     },
     {
-        "id": "4725bf22.4b16b",
+        "id": "f11df28b.a82268",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "9812299c.6e9b4",
+        "z": "227c356f.6f82e2",
+        "group": "d11829dc.62b3a",
         "name": "Bottlebanks on Worldmap",
         "order": 0,
         "width": 0,
@@ -284,10 +286,10 @@
         ]
     },
     {
-        "id": "4fddf31e.1cf004",
+        "id": "eb731dd2.cb6e98",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "b791f6a8.8f8f9",
+        "z": "227c356f.6f82e2",
+        "group": "bf26c53c.9645f8",
         "name": "Bottle Bank Information",
         "order": 0,
         "width": "8",
@@ -300,15 +302,15 @@
         "y": 800.7777709960938,
         "wires": [
             [
-                "3901ad53.23ab92",
-                "19bc9173.2fc14f"
+                "17526246.ec0cc6",
+                "f45243bc.04483"
             ]
         ]
     },
     {
-        "id": "57488cb9.bb73f4",
+        "id": "948b70b6.7af008",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "List Extraction for Most Unused Bottlebanks",
         "func": "centerMsg = msg[\"centerAvg\"]\nlistOfBottleBankItems = []\n\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) < centerMsg:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"] }) \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nmsg[\"mostUnUsedName\"] = True\nmsg[\"mostUnUsedAvailability\"] = True\nmsg[\"mostUnUsedStatus\"] = True\n\nmsg[\"default\"] = \"\"\nreturn msg",
         "outputs": 1,
@@ -316,15 +318,15 @@
         "y": 488,
         "wires": [
             [
-                "ac8b69a6.0f9a2",
-                "b2adecea.c91498"
+                "e09aec99.7fc988",
+                "c5572698.13ca6"
             ]
         ]
     },
     {
-        "id": "8accc2fc.1b3a38",
+        "id": "8ef6ae99.985f2",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Notification Extraction",
         "func": "listOfBottleBankItems = []\nnotificationCriterion = 20\nemptyNotification = 0 \nissueNotification = -1\n\nfor items in msg[\"payload\"]:\n    if int(items[\"AvgFillingRatePerDay\"]) > notificationCriterion:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"], \"notification\" : \"emptyIt\" })\n    \n    if int(items[\"AvgFillingRatePerDay\"]) == emptyNotification:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"], \"notification\" : \"empty\" })\n    \n    if int(items[\"AvgFillingRatePerDay\"]) == issueNotification:\n        listOfBottleBankItems.append({\"Property\": items[\"Property\"], \"MaximumCapacity\": items[\"MaximumCapacity\"], \"Glass\": items[\"Glass\"], \"AvgFillingRatePerDay\": items[\"AvgFillingRatePerDay\"], \"FillingLimit\": items[\"FillingLimit\"], \"lat\": items[\"lat\"], \"lon\": items[\"lon\"], \"name\": items[\"name\"], \"identifier\": items[\"identifier\"], \"status\": items[\"status\"], \"notification\" : \"issue\" })\n        \n        \nmsg[\"payload\"] = listOfBottleBankItems\n\nreturn msg",
         "outputs": 1,
@@ -332,16 +334,16 @@
         "y": 638.9999389648438,
         "wires": [
             [
-                "ac8b69a6.0f9a2",
-                "5e408114.7b8cf8",
-                "bd470b26.a3e79"
+                "e09aec99.7fc988",
+                "7dbce1be.d052a",
+                "21c94b95.f4cb54"
             ]
         ]
     },
     {
-        "id": "ac8b69a6.0f9a2",
+        "id": "e09aec99.7fc988",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": false,
         "console": "false",
@@ -351,10 +353,10 @@
         "wires": []
     },
     {
-        "id": "5e408114.7b8cf8",
+        "id": "7dbce1be.d052a",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "37c5a8f.a2237d8",
+        "z": "227c356f.6f82e2",
+        "group": "fdbe1c8d.12372",
         "name": "Notifications",
         "order": 1,
         "width": "8",
@@ -367,34 +369,36 @@
         "y": 711,
         "wires": [
             [
-                "8446e90c.08c0d",
-                "645d84df.990f64"
+                "901bb4e0.373008",
+                "42ca54b1.966d94"
             ]
         ]
     },
     {
-        "id": "e2b8605f.8fe9",
+        "id": "5093b9e6.6f2b7",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "37c5a8f.a2237d8",
+        "z": "227c356f.6f82e2",
+        "group": "fdbe1c8d.12372",
         "name": "Information of Interest",
         "order": 2,
         "width": "8",
         "height": "12",
-        "format": "<div >\n    <br />\n    <br />\n    <hr style=\"color:#E0E0E0\"/>\n     <br />\n    <br />\n    <h3>Available Spaces for Bottle Bank Installations</h3>\n    <br /><br /><br />\n    <div style=\"text-align:left;\">\n        <h2>{{msg.payload[0].name.value}}</h2><br />\n        <p>{{msg.payload[0].abstract.value}}</p><br />\n        <p><b>Comment:</b>{{msg.payload[0].comment.value}}</p><br /><br />\n    </div>\n</div>",
+        "format": "<div >\n    <br />\n    <br />\n    <hr style=\"color:#E0E0E0\"/>\n    \n    <br />\n    <h3>Available Spaces for Bottle Bank Installations</h3>\n    <br /><br />\n    <div style=\"text-align:left;\">\n        <h2>{{msg.payload[0].name.value}}</h2><br />\n        <p>{{msg.payload[0].abstract.value}}</p><br />\n        <p><b>Comment:</b>{{msg.payload[0].comment.value}}</p>\n    </div>\n    <div style=\"text-align:right;\">\n        <md-button style=\"margin-top:17px;\" class=\"fav-btn\" ng-click=\"send({payload:[msg.payload[0].name.value, 'previous' ]})\"><i class=\"fa fa-chevron-left\" aria-hidden=\"true\"></i></md-button>\n        <md-button class=\"fav-btn\" ng-click=\"send({payload:[msg.payload[0].name.value, 'next' ]})\"><i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i></md-button>\n    </div>\n</div>",
         "storeOutMessages": false,
         "fwdInMessages": false,
         "templateScope": "local",
-        "x": 1542.5,
-        "y": 903,
+        "x": 1920.5,
+        "y": 945,
         "wires": [
-            []
+            [
+                "1e47b4c5.20d623"
+            ]
         ]
     },
     {
-        "id": "d318c0b.29deb4",
+        "id": "33bb6dd6.cc819a",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Sensor Detailed Information ",
         "func": "\nreturn msg;",
         "outputs": 1,
@@ -406,9 +410,9 @@
         ]
     },
     {
-        "id": "d56b1d37.2d132",
+        "id": "d34bad7a.2d3418",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": false,
         "console": "false",
@@ -418,9 +422,9 @@
         "wires": []
     },
     {
-        "id": "a215dccf.9ba6e8",
+        "id": "98d609c9.01da18",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Sort by name, availability or status",
         "func": "if msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"name\" :\n    if msg[\"allUsedName\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['name'], reverse=True) \n        msg['allUsedName'] = False\n    else: \n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['name']) \n        msg['allUsedName'] = True\n\n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"AvgFillingRatePerDay\" :\n    if msg[\"alltUsedAvailability\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay'], reverse=True)\n        msg[\"alltUsedAvailability\"] = False\n    else:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay'])\n        msg[\"alltUsedAvailability\"] = True\n\n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"status\" :\n    if msg[\"allUsedStatus\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['status'], reverse=True)\n        msg[\"allUsedStatus\"] = False\n    else:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['status'])\n        msg[\"allUsedStatus\"] = True\n\n    msg['payload'] = sortedList\n    return msg\n\n\nreturn None  ",
         "outputs": 1,
@@ -428,15 +432,15 @@
         "y": 553,
         "wires": [
             [
-                "d56b1d37.2d132",
-                "d911903e.eea96"
+                "d34bad7a.2d3418",
+                "1c12b98c.0f8926"
             ]
         ]
     },
     {
-        "id": "e296afbb.50a04",
+        "id": "727e66c.c73e118",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Sort by name, availability or status",
         "func": "if msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"name\" :\n    if msg[\"mostUsedName\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['name'], reverse=True) \n        msg['mostUsedName'] = False\n    else: \n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['name']) \n        msg['mostUsedName'] = True\n\n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"AvgFillingRatePerDay\" :\n    if msg[\"mostUsedAvailability\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay'], reverse=True)\n        msg[\"mostUsedAvailability\"] = False\n    else:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay'])\n        msg[\"mostUsedAvailability\"] = True\n\n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"status\" :\n    if msg[\"mostUsedStatus\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['status'], reverse=True)\n        msg[\"mostUsedStatus\"] = False\n    else:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['status'])\n        msg[\"mostUsedStatus\"] = True\n\n    msg['payload'] = sortedList\n    return msg\n\n\nreturn None  ",
         "outputs": 1,
@@ -444,14 +448,14 @@
         "y": 431,
         "wires": [
             [
-                "9585ee59.cf4a8"
+                "784445fa.7e3594"
             ]
         ]
     },
     {
-        "id": "9813f9dd.401dd",
+        "id": "9b23201f.9da2f",
         "type": "python3-function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Sort by name, availability or status",
         "func": "if msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"name\" :\n    if msg[\"mostUnUsedName\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['name'], reverse=True) \n        msg['mostUnUsedName'] = False\n    else: \n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['name']) \n        msg['mostUnUsedName'] = True\n\n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"AvgFillingRatePerDay\" :\n    if msg[\"mostUnUsedAvailability\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay'], reverse=True)\n        msg[\"mostUnUsedAvailability\"] = False\n    else:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['AvgFillingRatePerDay'])\n        msg[\"mostUnUsedAvailability\"] = True\n\n    msg['payload'] = sortedList\n    return msg\n\nif msg['payload'][0] == \"sort\" and msg[\"payload\"][1] == \"status\" :\n    if msg[\"mostUnUsedStatus\"]:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['status'], reverse=True)\n        msg[\"mostUnUsedStatus\"] = False\n    else:\n        sortedList =  sorted(msg['payload'][2], key=lambda k: k['status'])\n        msg[\"mostUnUsedStatus\"] = True\n\n    msg['payload'] = sortedList\n    return msg\n\n\nreturn None  ",
         "outputs": 1,
@@ -459,14 +463,14 @@
         "y": 487,
         "wires": [
             [
-                "843850f6.7d855"
+                "91e57ccb.c01528"
             ]
         ]
     },
     {
-        "id": "e0df0d09.9ddc8",
+        "id": "49808f03.69e128",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Flow Context Variables For Sorting",
         "func": "flow.set('mostUsedName','nil');\nflow.set('mostUsedAvailability','nil');\nflow.set('mostUsedStatus', 'nil');\n\nflow.set('mostUnUsedName', 'nil');\nflow.set('mostUnUsedAvailability', 'nil');\nflow.set('mostUnUsedStatus', 'nil');\n\nflow.set('allUsedName', 'nil');\nflow.set('alltUsedAvailability', 'nil');\nflow.set('allUsedStatus', 'nil');\n\nreturn msg;",
         "outputs": 1,
@@ -475,14 +479,14 @@
         "y": 516,
         "wires": [
             [
-                "8ff70106.035c6"
+                "9effede1.facc08"
             ]
         ]
     },
     {
-        "id": "8ff70106.035c6",
+        "id": "9effede1.facc08",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": false,
         "console": "false",
@@ -492,10 +496,10 @@
         "wires": []
     },
     {
-        "id": "f86cb08d.dd28d",
+        "id": "dad4ab2b.d5ed5",
         "type": "ui_template",
-        "z": "c1359a77.ac5478",
-        "group": "b3ea3a79.233028",
+        "z": "227c356f.6f82e2",
+        "group": "9f8a630f.cd092",
         "name": "Footer",
         "order": 0,
         "width": 0,
@@ -511,9 +515,9 @@
         ]
     },
     {
-        "id": "ceb40439.11237",
+        "id": "935ddde.bad7c2",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": false,
         "console": "false",
@@ -523,9 +527,9 @@
         "wires": []
     },
     {
-        "id": "e28d9ea8.bac578",
+        "id": "c78f07e9.d72fc",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "searchBottleBanks",
         "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.payload = msg.payload[1]\n    msg.payload = { command:{search:msg.payload} };\n    return msg;\n}else\n{\n    msg.payload = \"\";\n}\n\nreturn null;\n",
         "outputs": 1,
@@ -534,14 +538,14 @@
         "y": 180,
         "wires": [
             [
-                "f334db48.b1801"
+                "b0fa0e9f.8bec9"
             ]
         ]
     },
     {
-        "id": "64a5e18f.149d08",
+        "id": "adcc8463.948348",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "ASC/DESC Processing Function for MUBB",
         "func": "if(msg.payload[0] == \"sort\")\n{\n    if( msg.payload[1] == \"name\" && ( flow.get('mostUsedName') == \"nil\" || flow.get('mostUsedName') == \"True\" ) )\n    {\n        msg.mostUsedName = true ;\n        msg.mostUsedAvailability = true ;\n        msg.mostUsedStatus = true ;\n        flow.set('mostUsedAvailability','True');\n        flow.set('mostUsedStatus','True');\n        flow.set('mostUsedName','False');\n        \n    \n    }else if( msg.payload[1] == \"name\" && flow.get('mostUsedName') == \"False\" ) \n    {\n        msg.mostUsedName = false ;\n        msg.mostUsedAvailability = true ;\n        msg.mostUsedStatus = true ;\n        flow.set('mostUsedAvailability','True');\n        flow.set('mostUsedStatus','True');\n        flow.set('mostUsedName','True');\n    \n    }else if ( msg.payload[1] == \"AvgFillingRatePerDay\"  && ( flow.get('mostUsedAvailability') == \"nil\" || flow.get('mostUsedAvailability') == \"True\" ) )\n    {\n        msg.mostUsedAvailability = true ;\n        msg.mostUsedName = true ;\n        msg.mostUsedStatus = true ;\n        flow.set('mostUsedName','True');\n        flow.set('mostUsedStatus','True');\n        flow.set('mostUsedAvailability','False');\n        \n    }else if( msg.payload[1] == \"AvgFillingRatePerDay\"  && flow.get('mostUsedAvailability') == \"False\"  )\n    {\n        msg.mostUsedName = true ;\n        msg.mostUsedStatus = true ;\n        flow.set('mostUsedName','True');\n        msg.mostUsedAvailability = false ;\n        flow.set('mostUsedStatus','True');\n        flow.set('mostUsedAvailability','True');\n        \n    }else if ( msg.payload[1] == \"status\"  && ( flow.get('mostUsedStatus') == \"nil\" || flow.get('mostUsedStatus') == \"True\" ) )\n    {\n        msg.mostUsedStatus = true ;\n        msg.mostUsedAvailability = true ;\n        msg.mostUsedName = true ;\n        flow.set('mostUsedName','True');\n        flow.set('mostUsedAvailability','True');\n        flow.set('mostUsedStatus','False');\n        \n    }else if( msg.payload[1] == \"status\"  && flow.get('mostUsedStatus') == \"False\"  )\n    {\n        msg.mostUsedStatus = false ;\n        msg.mostUsedName = true ;\n        flow.set('mostUsedName','True');\n        msg.mostUsedAvailability = true ;\n        flow.set('mostUsedAvailability','True');\n        flow.set('mostUsedStatus','True');\n    \n    }\n  \n    \n    msg.default = msg.payload[3];\n    return msg;\n}\n\nreturn null;",
         "outputs": 1,
@@ -550,14 +554,14 @@
         "y": 428,
         "wires": [
             [
-                "e296afbb.50a04"
+                "727e66c.c73e118"
             ]
         ]
     },
     {
-        "id": "43244458.2e2734",
+        "id": "d296cd09.88c21",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "ASC/DESC Processing Function for MUUB",
         "func": "if(msg.payload[0] == \"sort\")\n{\n    if( msg.payload[1] == \"name\" && ( flow.get('mostUnUsedName') == \"nil\" || flow.get('mostUnUsedName') == \"True\" ) )\n    {\n        msg.mostUnUsedName = true ;\n        msg.mostUnUsedAvailability = true ;\n        msg.mostUnUsedStatus = true ;\n        flow.set('mostUnUsedAvailability','True');\n        flow.set('mostUnUsedStatus','True');\n        flow.set('mostUnUsedName','False');\n        \n    \n    }else if( msg.payload[1] == \"name\" && flow.get('mostUnUsedName') == \"False\" ) \n    {\n        msg.mostUnUsedName = false ;\n        msg.mostUnUsedAvailability = true ;\n        msg.mostUnUsedStatus = true ;\n        flow.set('mostUnUsedAvailability','True');\n        flow.set('mostUnUsedStatus','True');\n        flow.set('mostUnUsedName','True');\n    \n    }else if ( msg.payload[1] == \"AvgFillingRatePerDay\"  && ( flow.get('mostUnUsedAvailability') == \"nil\" || flow.get('mostUnUsedAvailability') == \"True\" ) )\n    {\n        msg.mostUnUsedAvailability = true ;\n        msg.mostUnUsedName = true ;\n        msg.mostUnUsedStatus = true ;\n        flow.set('mostUnUsedName','True');\n        flow.set('mostUnUsedStatus','True');\n        flow.set('mostUnUsedAvailability','False');\n        \n    }else if( msg.payload[1] == \"AvgFillingRatePerDay\"  && flow.get('mostUnUsedAvailability') == \"False\"  )\n    {\n        msg.mostUnUsedName = true ;\n        msg.mostUnUsedStatus = true ;\n        flow.set('mostUnUsedName','True');\n        msg.mostUnUsedAvailability = false ;\n        flow.set('mostUnUsedStatus','True');\n        flow.set('mostUnUsedAvailability','True');\n        \n    }else if ( msg.payload[1] == \"status\"  && ( flow.get('mostUnUsedStatus') == \"nil\" || flow.get('mostUnUsedStatus') == \"True\" ) )\n    {\n        msg.mostUnUsedStatus = true ;\n        msg.mostUnUsedAvailability = true ;\n        msg.mostUnUsedName = true ;\n        flow.set('mostUnUsedName','True');\n        flow.set('mostUnUsedAvailability','True');\n        flow.set('mostUnUsedStatus','False');\n        \n    }else if( msg.payload[1] == \"status\"  && flow.get('mostUnUsedStatus') == \"False\"  )\n    {\n        msg.mostUnUsedStatus = false ;\n        msg.mostUnUsedName = true ;\n        flow.set('mostUnUsedName','True');\n        msg.mostUnUsedAvailability = true ;\n        flow.set('mostUnUsedAvailability','True');\n        flow.set('mostUnUsedStatus','True');\n    \n    }\n  \n    \n    msg.default = msg.payload[3];\n    return msg;\n}\n\nreturn null;",
         "outputs": 1,
@@ -566,14 +570,14 @@
         "y": 491,
         "wires": [
             [
-                "9813f9dd.401dd"
+                "9b23201f.9da2f"
             ]
         ]
     },
     {
-        "id": "6c0f0df8.0da86c",
+        "id": "52d5b8db.086608",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "ASC/DESC Processing Function for ALL",
         "func": "if(msg.payload[0] == \"sort\")\n{\n    if( msg.payload[1] == \"name\" && ( flow.get('allUsedName') == \"nil\" || flow.get('allUsedName') == \"True\" ) )\n    {\n        msg.allUsedName = true ;\n        msg.alltUsedAvailability = true ;\n        msg.allUsedStatus = true ;\n        flow.set('alltUsedAvailability','True');\n        flow.set('allUsedStatus','True');\n        flow.set('allUsedName','False');\n        \n    \n    }else if( msg.payload[1] == \"name\" && flow.get('allUsedName') == \"False\" ) \n    {\n        msg.allUsedName = false ;\n        msg.alltUsedAvailability = true ;\n        msg.allUsedStatus = true ;\n        flow.set('alltUsedAvailability','True');\n        flow.set('allUsedStatus','True');\n        flow.set('allUsedName','True');\n    \n    }else if ( msg.payload[1] == \"AvgFillingRatePerDay\"  && ( flow.get('alltUsedAvailability') == \"nil\" || flow.get('alltUsedAvailability') == \"True\" ) )\n    {\n        msg.alltUsedAvailability = true ;\n        msg.allUsedName = true ;\n        msg.allUsedStatus = true ;\n        flow.set('allUsedName','True');\n        flow.set('allUsedStatus','True');\n        flow.set('alltUsedAvailability','False');\n        \n    }else if( msg.payload[1] == \"AvgFillingRatePerDay\"  && flow.get('alltUsedAvailability') == \"False\"  )\n    {\n        msg.allUsedName = true ;\n        msg.allUsedStatus = true ;\n        flow.set('allUsedName','True');\n        msg.alltUsedAvailability = false ;\n        flow.set('allUsedStatus','True');\n        flow.set('alltUsedAvailability','True');\n        \n    }else if ( msg.payload[1] == \"status\"  && ( flow.get('allUsedStatus') == \"nil\" || flow.get('allUsedStatus') == \"True\" ) )\n    {\n        msg.allUsedStatus = true ;\n        msg.alltUsedAvailability = true ;\n        msg.allUsedName = true ;\n        flow.set('allUsedName','True');\n        flow.set('alltUsedAvailability','True');\n        flow.set('allUsedStatus','False');\n        \n    }else if( msg.payload[1] == \"status\"  && flow.get('allUsedStatus') == \"False\"  )\n    {\n        msg.allUsedStatus = false ;\n        msg.allUsedName = true ;\n        flow.set('allUsedName','True');\n        msg.alltUsedAvailability = true ;\n        flow.set('alltUsedAvailability','True');\n        flow.set('allUsedStatus','True');\n    \n    }\n  \n    \n    msg.default = msg.payload[3];\n    return msg;\n}\n\nreturn null;",
         "outputs": 1,
@@ -582,15 +586,15 @@
         "y": 554,
         "wires": [
             [
-                "a215dccf.9ba6e8",
-                "5ac48e2e.834e4"
+                "98d609c9.01da18",
+                "b1075c3f.9e734"
             ]
         ]
     },
     {
-        "id": "778ee5df.cf073c",
+        "id": "1d670dd.880b1f2",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Clear MUUB",
         "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.default = \"\";\n    msg[\"mostUnUsedName\"] = true ;\n    msg[\"mostUnUsedAvailability\"] = true ;\n    msg[\"mostUnUsedStatus\"] = true ;\n    msg.payload = flow.get(\"MUUB\");\n    return msg;\n}\n\nreturn null;\n",
         "outputs": 1,
@@ -599,14 +603,14 @@
         "y": 715,
         "wires": [
             [
-                "843850f6.7d855"
+                "91e57ccb.c01528"
             ]
         ]
     },
     {
-        "id": "1b3d026e.09e0e6",
+        "id": "3cedb773.2ae068",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Set Context MUBB",
         "func": "flow.set('MUBB', msg.payload);\n\nreturn msg;",
         "outputs": 1,
@@ -615,14 +619,14 @@
         "y": 427,
         "wires": [
             [
-                "9585ee59.cf4a8"
+                "784445fa.7e3594"
             ]
         ]
     },
     {
-        "id": "b2adecea.c91498",
+        "id": "c5572698.13ca6",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Set Context MUUB",
         "func": "flow.set('MUUB', msg.payload);\n\nreturn msg;",
         "outputs": 1,
@@ -631,14 +635,14 @@
         "y": 487,
         "wires": [
             [
-                "843850f6.7d855"
+                "91e57ccb.c01528"
             ]
         ]
     },
     {
-        "id": "d80595c7.428f9",
+        "id": "3e86490a.aa555e",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Set Context ALL",
         "func": "flow.set('ALL', msg.payload);\n\nreturn msg;",
         "outputs": 1,
@@ -647,14 +651,14 @@
         "y": 552,
         "wires": [
             [
-                "d911903e.eea96"
+                "1c12b98c.0f8926"
             ]
         ]
     },
     {
-        "id": "a6bf7d80.ca3e78",
+        "id": "ade956d0.57aba",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Clear ALL",
         "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.default = \"\";\n    msg[\"allUsedName\"] = true ;\n    msg[\"alltUsedAvailability\"] = true ;\n    msg[\"allUsedStatus\"] = true ;\n    msg.payload = flow.get(\"ALL\");\n    return msg;\n}\n\nreturn null;\n",
         "outputs": 1,
@@ -663,14 +667,14 @@
         "y": 718,
         "wires": [
             [
-                "d911903e.eea96"
+                "1c12b98c.0f8926"
             ]
         ]
     },
     {
-        "id": "8171038b.b54c4",
+        "id": "e99f16b5.8a45e",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Clear MUBB",
         "func": "\nif(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.default = \"\";\n    msg.payload = flow.get(\"MUBB\");\n    msg[\"mostUsedName\"] = true ;\n    msg[\"mostUsedAvailability\"] = true ;\n    msg[\"mostUsedStatus\"] = true ;\n    return msg;\n}\n\nreturn null;\n",
         "outputs": 1,
@@ -679,14 +683,14 @@
         "y": 720,
         "wires": [
             [
-                "9585ee59.cf4a8"
+                "784445fa.7e3594"
             ]
         ]
     },
     {
-        "id": "5ac48e2e.834e4",
+        "id": "b1075c3f.9e734",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": false,
         "console": "false",
@@ -696,9 +700,9 @@
         "wires": []
     },
     {
-        "id": "bd470b26.a3e79",
+        "id": "21c94b95.f4cb54",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": true,
         "console": "false",
@@ -708,9 +712,9 @@
         "wires": []
     },
     {
-        "id": "8446e90c.08c0d",
+        "id": "901bb4e0.373008",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": true,
         "console": "false",
@@ -720,9 +724,9 @@
         "wires": []
     },
     {
-        "id": "645d84df.990f64",
+        "id": "42ca54b1.966d94",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "searchBottleBanks",
         "func": "\nif( typeof msg.payload == \"string\" )\n{\n    msg.payload = msg.payload\n    msg.payload = { command:{search:msg.payload} };\n    return msg;\n}else\n{\n    msg.payload = \"\";\n}\n\nreturn null;\n",
         "outputs": 1,
@@ -731,30 +735,14 @@
         "y": 840,
         "wires": [
             [
-                "f334db48.b1801"
+                "b0fa0e9f.8bec9"
             ]
         ]
     },
     {
-        "id": "47a4fbee.968f6c",
-        "type": "sparql",
-        "z": "c1359a77.ac5478",
-        "name": "POI Extraction",
-        "prefix": "http://dbpedia.org/sparql",
-        "func": "select DISTINCT * where {\n\nVALUES ?city {<http://dbpedia.org/resource/Parc_Saint-Clair>}\n\n\n?city rdfs:label ?name .\n?city dbo:abstract ?abstract .\n?city rdfs:comment ?comment .\n\nFILTER((LANG(?name) = \"\" || LANGMATCHES(LANG(?name), \"en\")) and (LANG(?abstract) = \"\" || LANGMATCHES(LANG(?abstract), \"en\")) and (LANG(?comment) = \"\" || LANGMATCHES(LANG(?comment), \"en\")))\n}",
-        "outputs": 1,
-        "x": 944,
-        "y": 708,
-        "wires": [
-            [
-                "e2b8605f.8fe9"
-            ]
-        ]
-    },
-    {
-        "id": "1c91f22a.0452ce",
+        "id": "a8cfc8f7.d6981",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "Bottle Bank Information Processing For Detail",
         "func": "if(typeof msg.payload[1] == \"string\" && msg.payload[0] == \"radio\")\n{\n    msg.payload = msg.payload[2] ;\n    return msg ;\n}\n\nreturn null;\n",
         "outputs": 1,
@@ -763,14 +751,14 @@
         "y": 801,
         "wires": [
             [
-                "4fddf31e.1cf004"
+                "eb731dd2.cb6e98"
             ]
         ]
     },
     {
-        "id": "3901ad53.23ab92",
+        "id": "17526246.ec0cc6",
         "type": "debug",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "",
         "active": true,
         "console": "false",
@@ -780,9 +768,9 @@
         "wires": []
     },
     {
-        "id": "19bc9173.2fc14f",
+        "id": "f45243bc.04483",
         "type": "function",
-        "z": "c1359a77.ac5478",
+        "z": "227c356f.6f82e2",
         "name": "searchBottleBanks",
         "func": "\nif(typeof msg.payload == \"string\" )\n{\n    msg.payload = msg.payload\n    msg.payload = { command:{search:msg.payload} };\n    return msg;\n}else\n{\n    msg.payload = \"\";\n}\n\nreturn null;\n",
         "outputs": 1,
@@ -791,89 +779,247 @@
         "y": 229,
         "wires": [
             [
-                "f334db48.b1801"
+                "b0fa0e9f.8bec9"
             ]
         ]
     },
     {
-        "id": "90c3b622.1c061",
+        "id": "53b1c8b6.00ab2",
+        "type": "sparql",
+        "z": "227c356f.6f82e2",
+        "name": "Open Area For Sensor Installation 1",
+        "prefix": "http://dbpedia.org/sparql",
+        "func": "select DISTINCT * where {\n\nVALUES ?city {<http://dbpedia.org/resource/Parc_Saint-Clair>}\n\n\n?city rdfs:label ?name .\n?city dbo:abstract ?abstract .\n?city rdfs:comment ?comment .\n\nFILTER((LANG(?name) = \"\" || LANGMATCHES(LANG(?name), \"en\")) and (LANG(?abstract) = \"\" || LANGMATCHES(LANG(?abstract), \"en\")) and (LANG(?comment) = \"\" || LANGMATCHES(LANG(?comment), \"en\")))\n}",
+        "outputs": 1,
+        "x": 998,
+        "y": 947,
+        "wires": [
+            [
+                "5e0f371b.ae3738"
+            ]
+        ]
+    },
+    {
+        "id": "f49f0767.ccee18",
+        "type": "sparql",
+        "z": "227c356f.6f82e2",
+        "name": "Open Area For Sensor Installation 2",
+        "prefix": "http://dbpedia.org/sparql",
+        "func": "select DISTINCT * where {\n\nVALUES ?city {<http://dbpedia.org/resource/Parc_de_Gerland>}\n\n\n?city rdfs:label ?name .\n?city dbo:abstract ?abstract .\n?city rdfs:comment ?comment .\n\nFILTER((LANG(?name) = \"\" || LANGMATCHES(LANG(?name), \"en\")) and (LANG(?abstract) = \"\" || LANGMATCHES(LANG(?abstract), \"en\")) and (LANG(?comment) = \"\" || LANGMATCHES(LANG(?comment), \"en\")))\n}",
+        "outputs": 1,
+        "x": 1002.5,
+        "y": 995,
+        "wires": [
+            [
+                "b14496ed.4a1528"
+            ]
+        ]
+    },
+    {
+        "id": "bcad55e.304ff28",
+        "type": "sparql",
+        "z": "227c356f.6f82e2",
+        "name": "Open Area For Sensor Installation 3",
+        "prefix": "http://dbpedia.org/sparql",
+        "func": "select DISTINCT * where {\n\nVALUES ?city {<http://dbpedia.org/resource/Parc_de_la_Cerisaie>}\n\n\n?city rdfs:label ?name .\n?city dbo:abstract ?abstract .\n?city rdfs:comment ?comment .\n\nFILTER((LANG(?name) = \"\" || LANGMATCHES(LANG(?name), \"en\")) and (LANG(?abstract) = \"\" || LANGMATCHES(LANG(?abstract), \"en\")) and (LANG(?comment) = \"\" || LANGMATCHES(LANG(?comment), \"en\")))\n}",
+        "outputs": 1,
+        "x": 1001.5,
+        "y": 1044,
+        "wires": [
+            [
+                "6c7f1412.40c39c"
+            ]
+        ]
+    },
+    {
+        "id": "6c7f1412.40c39c",
+        "type": "function",
+        "z": "227c356f.6f82e2",
+        "name": "Flow SetContext SPARQL3",
+        "func": "flow.set(\"Area3\", msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1353.5,
+        "y": 1044,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b14496ed.4a1528",
+        "type": "function",
+        "z": "227c356f.6f82e2",
+        "name": "Flow SetContext SPARQL2",
+        "func": "flow.set(\"Area2\", msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1353.5,
+        "y": 996,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5e0f371b.ae3738",
+        "type": "function",
+        "z": "227c356f.6f82e2",
+        "name": "Flow SetContext SPARQL1",
+        "func": "flow.set(\"Area1\", msg.payload);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1356,
+        "y": 946,
+        "wires": [
+            [
+                "5093b9e6.6f2b7"
+            ]
+        ]
+    },
+    {
+        "id": "1e47b4c5.20d623",
+        "type": "function",
+        "z": "227c356f.6f82e2",
+        "name": "Current Area",
+        "func": "if( msg.payload[0] == \"Parc de Gerland\" && msg.payload[1] == \"next\" )\n{   \n    msg.area = 2 ;\n    return msg;\n}\n\nif( msg.payload[0] == \"Parc Saint-Clair\" && msg.payload[1] == \"next\" )\n{    \n    msg.area = 3 ;\n    return msg;\n}\n\nif( msg.payload[0] == \"Parc de la Cerisaie\" && msg.payload[1] == \"next\" )\n{    \n    msg.area = 1 ;\n    return msg;\n}\n\nif( msg.payload[0] == \"Parc de Gerland\" && msg.payload[1] == \"previous\" )\n{    \n    msg.area = 3 ;\n    return msg;\n}\n\nif( msg.payload[0] == \"Parc Saint-Clair\" && msg.payload[1] == \"previous\" )\n{    \n    msg.area = 1 ;\n    return msg;\n}\n\nif( msg.payload[0] == \"Parc de la Cerisaie\" && msg.payload[1] == \"previous\" )    \n{    msg.area = 2 ;\n    return msg;\n}\n\nreturn null\n    \n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2339,
+        "y": 945,
+        "wires": [
+            [
+                "c0199c12.3e9b",
+                "bb0b348d.8814e8",
+                "b59ed16e.85b3b8"
+            ]
+        ]
+    },
+    {
+        "id": "b59ed16e.85b3b8",
+        "type": "function",
+        "z": "227c356f.6f82e2",
+        "name": "Area 3",
+        "func": "if( msg.area == 3)\n{\n    msg.payload = flow.get(\"Area3\");\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2512.5,
+        "y": 1046,
+        "wires": [
+            [
+                "5093b9e6.6f2b7"
+            ]
+        ]
+    },
+    {
+        "id": "bb0b348d.8814e8",
+        "type": "function",
+        "z": "227c356f.6f82e2",
+        "name": "Area 2",
+        "func": "if( msg.area == 2)\n{\n    msg.payload = flow.get(\"Area2\");\n    return msg;\n}\n\nreturn null;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 2508.5,
+        "y": 998,
+        "wires": [
+            [
+                "5093b9e6.6f2b7"
+            ]
+        ]
+    },
+    {
+        "id": "c0199c12.3e9b",
+        "type": "function",
+        "z": "227c356f.6f82e2",
+        "name": "Area1",
+        "func": "if( msg.area == 1)\n{\n    msg.payload = flow.get(\"Area1\");\n    return msg;\n}\n    \nreturn null;",
+        "outputs": "1",
+        "noerr": 0,
+        "x": 2502.5,
+        "y": 948,
+        "wires": [
+            [
+                "5093b9e6.6f2b7"
+            ]
+        ]
+    },
+    {
+        "id": "2a96a6b.e4a8f5a",
         "type": "ui_group",
         "z": "",
         "name": "Most Used Bottlebanks",
-        "tab": "6632dc9c.1edbbc",
+        "tab": "573b5d16.62d4a4",
         "order": 5,
         "disp": true,
         "width": "12",
         "collapse": false
     },
     {
-        "id": "7fdb439.94a62bc",
+        "id": "36c537b8.bb60a",
         "type": "ui_group",
         "z": "",
         "name": "Most Unused Bottlebanks",
-        "tab": "6632dc9c.1edbbc",
+        "tab": "573b5d16.62d4a4",
         "order": 6,
         "disp": true,
         "width": "12",
         "collapse": false
     },
     {
-        "id": "670c6f1a.b29618",
+        "id": "2bf5b08a.1fab",
         "type": "ui_group",
         "z": "",
         "name": "Status of Bottle Banks",
-        "tab": "6632dc9c.1edbbc",
+        "tab": "573b5d16.62d4a4",
         "order": 1,
         "disp": true,
         "width": "16",
         "collapse": false
     },
     {
-        "id": "9812299c.6e9b4",
+        "id": "d11829dc.62b3a",
         "type": "ui_group",
         "z": "",
         "name": "Bottlebanks on Worldmap",
-        "tab": "6632dc9c.1edbbc",
+        "tab": "573b5d16.62d4a4",
         "order": 4,
         "disp": true,
         "width": "24",
         "collapse": false
     },
     {
-        "id": "b791f6a8.8f8f9",
+        "id": "bf26c53c.9645f8",
         "type": "ui_group",
         "z": "",
         "name": "Detailed Information Bottle Bank",
-        "tab": "6632dc9c.1edbbc",
+        "tab": "573b5d16.62d4a4",
         "order": 2,
         "disp": true,
         "width": "8",
         "collapse": false
     },
     {
-        "id": "37c5a8f.a2237d8",
+        "id": "fdbe1c8d.12372",
         "type": "ui_group",
         "z": "",
         "name": "Notifications",
-        "tab": "6632dc9c.1edbbc",
+        "tab": "573b5d16.62d4a4",
         "order": 3,
         "disp": true,
         "width": "8",
         "collapse": false
     },
     {
-        "id": "b3ea3a79.233028",
+        "id": "9f8a630f.cd092",
         "type": "ui_group",
         "z": "",
         "name": "Footer",
-        "tab": "6632dc9c.1edbbc",
+        "tab": "573b5d16.62d4a4",
         "order": 7,
         "disp": false,
         "width": "32",
         "collapse": false
     },
     {
-        "id": "6632dc9c.1edbbc",
+        "id": "573b5d16.62d4a4",
         "type": "ui_tab",
         "z": "",
         "name": "Bottlebank Waste Management Dashboard",
