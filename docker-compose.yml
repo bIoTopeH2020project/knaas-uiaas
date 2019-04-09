@@ -1,67 +1,19 @@
 version: '3'
 services:
-#    oori:
-#      image: biotope/oori
-#      environment:
-#        - SERVER_PORT=9090
-#        - CB_PORT=9090
-#        - ENDPOINT_URL=http://fuseki:3030/odfData
-#        - CB_HOSTNAME=biotope.iais.fraunhofer.de
-#      ports:
-#        - "9090:9090"
-#        - "5005:5005"   # java debugging
-
-#    fuseki:
-#      build: fuseki/
-#      ports:
-#        - "3030:3030"
-
-    web:
-      build: pysite/web/
-      ports:
-       - "4000:80"
-
-    nodejs:
-      build: pysite/Nodejs/
-      ports:
-       - "5080:5080"
-       - "8090:8090"
-      volumes:
-       - "./modules:/src/app/storage"
-
     o-mi-node:
       build: o-mi-node/
       ports:
        - "8080:8080"
 
-#    dashboard-context-manager:
-#      image: biotope/dashboard-context-manager
-#      environment:
-#        - SERVER_PORT=4040
-#      ports:
-#        - "4040:4040"
-
-#    mongodata:
-#      image: mongo
-#      volumes:
-#        - /data/db
-#      command: --break-mongo
-
     mongodb:
-#      build: mongodb/
       ports:
         - "27017:27017"
       image: mongo
       volumes:
         - './data/db:/data/db'
-#      volumes_from: 
+#      volumes_from:
 #        - mongodata
 #      command: -smallfiles --rest --auth
-
-#    data-science:
-#      image: jupyter/datascience-notebook
-#      ports:
-#        - "8888:8888"
 
     node-red:
       build: node-red/
@@ -72,9 +24,51 @@ services:
       links:
         - mongodb
         - o-mi-node
-#        - data-science
 
+  heatwavemitigation:
+      container_name: heatwavemitigation
+      build: node-red/
+      ports:
+        - "1883:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
 
-#    freeboard:
+  bottlebankcitizen:
+      container_name: bottlebankcitizen
+      build: node-red/
+      ports:
+        - "1884:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
 
+  bottlebankwastemanagement:
+      container_name: bottlebankwastemanagement
+      build: node-red/
+      ports:
+        - "1885:1880"
+      volumes:
+        - "./modules:/usr/src/node-red/modules"
+      links:
+        - mongodb
+        - o-mi-node
 
+  proxy:
+      container_name: proxy
+      image: proxy
+      build:
+       context: ./proxy
+      ports:
+       - "80:80"
+      depends_on:
+       - "o-mi-node"
+       - "mongodb"
+       - "node-red"
+       - "heatwavemitigation"
+       - "bottlebankcitizen"
+       - "bottlebankwastemanagement"
