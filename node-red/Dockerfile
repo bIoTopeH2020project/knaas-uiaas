@@ -69,6 +69,9 @@ RUN apt-get -y install build-essential python-dev
 RUN apt-get -y install python-numpy
 #RUN python -m pip install -U numpy
 
+#Mongo DB clients
+RUN apt install mongodb-clients 
+
 USER root
 # install Scientific Libraries for Python
 RUN apt-get -y install python-scipy python-matplotlib python-pandas python-sympy python-nose

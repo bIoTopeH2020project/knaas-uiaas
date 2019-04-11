@@ -19,7 +19,7 @@ services:
     web:
       build: pysite/web/
       ports:
-       - "4000:80"
+       - "4020:80"
 
     nodejs:
       build: pysite/Nodejs/
