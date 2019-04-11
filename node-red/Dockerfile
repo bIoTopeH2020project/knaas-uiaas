@@ -70,7 +70,7 @@ RUN apt-get -y install python-numpy
 #RUN python -m pip install -U numpy
 
 #Mongo DB clients
-RUN apt install mongodb-clients 
+RUN apt-get -y install mongodb-clients 
 
 USER root
 # install Scientific Libraries for Python
