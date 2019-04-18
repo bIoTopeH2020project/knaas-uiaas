@@ -49,6 +49,13 @@ The various use cases are implemented under the folders: [flows](flows/) and [mo
 
 Please not that in order to be able to deploy the flows, the needed credentials should be added inside the [modules](modules/config.yml) yaml configuration file.
 
+### Deployment Branches
+Separate branches are being maintained for the deployment of Pilot's and a general purpose service deployment. Please follow the links below to know more deployment specific branches:
+
+* [Lyon's Pilots](https://github.com/prokolyvakis/knaas-uiaas/tree/deploymentLyonPilots)
+* [Brussels Pilot](https://github.com/prokolyvakis/knaas-uiaas/tree/deploymentBrusselsCoMobility)
+* [General Deployment With all knaa-uiaas Features](https://github.com/prokolyvakis/knaas-uiaas/tree/deployment)
+
 ### Contributing
 
 When contributing to this repository, please first discuss the change you wish to make via issue, email, or any other method with the owners of this repository before making a change. 
