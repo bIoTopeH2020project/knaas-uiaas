@@ -54,7 +54,7 @@ Separate branches are being maintained for the deployment of Pilot's and a gener
 
 * [Lyon's Pilots](https://github.com/prokolyvakis/knaas-uiaas/tree/deploymentLyonPilots)
 * [Brussels Pilot](https://github.com/prokolyvakis/knaas-uiaas/tree/deploymentBrusselsCoMobility)
-* [General Deployment With all knaa-uiaas Features](https://github.com/prokolyvakis/knaas-uiaas/tree/deployment)
+* [General Deployment With all knaas-uiaas Features](https://github.com/prokolyvakis/knaas-uiaas/tree/deployment)
 
 ### Contributing
 
@@ -68,7 +68,7 @@ Please note we have a [code of conduct](CONTRIBUTING.md), please follow it in al
 
 * **Prodromos Kolyvakis** - *Initial design and implementation of KnaaS*
 * **Christian Mader** - *Initial design and implementation of UIaaS*
-* **Rohan Asmat** - *Initial design and implementation of UIaaS*
+* **Muhammad Rohan Ali Asmat** - *Initial design and implementation of UIaaS*
 
 ## License
 
